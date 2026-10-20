@@ -110,7 +110,7 @@ test("innate techniques never trigger Black Flash; physical attack has the separ
   assert.equal(result.ok, true);
   assert.equal(result.result.action, "technique");
   assert.equal(result.result.blackFlash, false);
-  assert.equal(state.combat.bleedTurns, 2);
+  assert.equal(state.combat.bleedTurns, 1, "the enemy turn should consume one bleed tick");
   assert.ok(!state.log.some(line => line.includes("BLACK FLASH!")));
 });
 
