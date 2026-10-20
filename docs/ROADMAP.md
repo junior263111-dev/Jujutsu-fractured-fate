@@ -52,7 +52,16 @@ RPG single-player de navegador inspirado no universo de Jujutsu Kaisen, com comb
 
 A análise original está em [MEGA-UPDATE-PREPARATION.md](MEGA-UPDATE-PREPARATION.md). Os problemas de XP, dificuldade e duração narrativa foram tratados na versão 0.3 com funcionalidades implementadas e testes regressivos.
 
-## Próxima prioridade: versão 0.4 — Combate mais profundo
+## Versão 0.4 — Overhaul tático e contratos (implementada)
+
+- [x] Talismã de selamento em combate para cancelar intenções.
+- [x] Guarda contra ataque pesado pode devolver dano.
+- [x] Sentinela do Véu com transição para segunda fase.
+- [x] Contratos com requisitos, recompensas e bloqueio contra resgate repetido.
+- [x] Reestilização global da interface e feedback específico de combate.
+- [x] Testes automáticos de talismã, contra-ataque, fase de chefe e contratos.
+
+## Próxima prioridade: versão 0.5 — Variedade de missões, equipamento e finais
 
 1. Separar intenção, rolagens e aplicação de efeitos em uma máquina de estados completamente determinística.
 2. Acrescentar animações curtas, hit-stop e feedback visual para erro, crítico, Black Flash, guarda perfeita, esquiva e efeito de técnica.
