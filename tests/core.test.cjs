@@ -109,7 +109,7 @@ test("innate techniques never trigger Black Flash; physical attack has the separ
   const result = Core.takeTurn(state, "technique", highRoll);
   assert.equal(result.ok, true);
   assert.equal(result.result.action, "technique");
-  assert.equal(result.result.blackFlash, undefined);
+  assert.equal(result.result.blackFlash, false);
   assert.equal(state.combat.bleedTurns, 2);
   assert.ok(!state.log.some(line => line.includes("BLACK FLASH!")));
 });
