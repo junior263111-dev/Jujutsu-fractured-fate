@@ -264,7 +264,7 @@
 
   function resolveEnemyTurn(state, action, rng) {
     var p = state.player, enemy = state.combat;
-    var result = { enemyAction: enemy.intent, incoming: 0, dodged: false, guarded: false, defeated: false };
+    var result = { enemyAction: enemy.intent, incoming: 0, dodged: false, guarded: false, defeated: false, dodgeRoll: null, dodgeTotal: null, dodgeTarget: null };
     if (enemy.bleedTurns > 0 && enemy.hp > 0) {
       enemy.hp = Math.max(0, enemy.hp - enemy.bleeds);
       enemy.bleedTurns -= 1;
@@ -293,6 +293,9 @@
       var dodgeRoll = rollDie(20, rng);
       var dodgeTotal = dodgeRoll + p.dodgeBonus;
       var dodgeTarget = isHeavy ? 17 : 13;
+      result.dodgeRoll = dodgeRoll;
+      result.dodgeTotal = dodgeTotal;
+      result.dodgeTarget = dodgeTarget;
       if (dodgeRoll === 20 || (dodgeRoll !== 1 && dodgeTotal >= dodgeTarget)) {
         result.dodged = true;
         p.ce = clamp(p.ce + 5, 0, p.maxCe);
@@ -339,7 +342,6 @@
       result.defeated = true;
       return result;
     }
-    chooseIntent(enemy, rng);
     return result;
   }
 
