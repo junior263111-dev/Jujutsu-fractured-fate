@@ -1,7 +1,7 @@
 (function (root) {
   "use strict";
   root.JFF_DATA = {
-    version: "0.2.0",
+    version: "0.3.0",
     title: "Jujutsu: Fractured Fate",
     techniques: {
       speech: {
@@ -11,7 +11,7 @@
         category: "Controle",
         description: "Uma ordem carregada de energia amaldiçoada pode quebrar o ritmo do adversário.",
         principle: "Pode interromper um inimigo quando o teste de efeito supera sua resistência.",
-        cost: 20,
+        cost: 15,
         multiplier: 1.05,
         effect: "stun",
         effectName: "Ordem restritiva",
@@ -24,7 +24,7 @@
         category: "Pressão contínua",
         description: "Converte energia amaldiçoada em um ataque preciso que deixa um efeito persistente.",
         principle: "Acertos aplicam sangramento por duas rodadas.",
-        cost: 18,
+        cost: 16,
         multiplier: 1.3,
         effect: "bleed",
         effectName: "Sangramento",
@@ -37,8 +37,8 @@
         category: "Precisão",
         description: "Busca o ponto fraco do alvo e prepara uma abertura para o próximo ataque físico.",
         principle: "Marca o inimigo: o próximo ataque que acertar causa dano adicional.",
-        cost: 16,
-        multiplier: 0.95,
+        cost: 14,
+        multiplier: 1.0,
         effect: "expose",
         effectName: "Ponto vulnerável",
         masteryText: "Maestria aumenta dano e precisão das técnicas."
@@ -50,7 +50,7 @@
         category: "Versatilidade",
         description: "Usa sombras para pressionar o inimigo e proteger o feiticeiro por um turno.",
         principle: "O ataque também cria uma proteção para reduzir o próximo golpe recebido.",
-        cost: 22,
+        cost: 18,
         multiplier: 1.15,
         effect: "ward",
         effectName: "Proteção das sombras",
@@ -124,6 +124,84 @@
             effects: { clues: 2, ce: 20, endingChoice: "research" }
           }
         ]
+      },
+      devourerAftermath: {
+        chapter: "CAPÍTULO 02 · RASTROS",
+        title: "A coisa dentro do recipiente",
+        sceneTitle: "Contenção em risco",
+        sceneDescription: "O Devorador foi exorcizado, mas sua energia deixou uma marca legível. A forma de tratar o vestígio vai definir a próxima operação.",
+        sceneLocation: "ANEXO DE CONTENÇÃO",
+        sceneCondition: "CAPÍTULO 02 CONCLUÍDO",
+        speaker: "Aki Morino", role: "Supervisora de campo", portrait: "AM",
+        lines: [
+          "O Devorador não surgiu por acaso. Ele estava drenando o resíduo que preservamos — ou que não conseguimos destruir — em Kurohama.",
+          "A Sentinela do Véu protege o ponto de origem. Antes de entrar lá, decida se nossa prioridade é conter o perigo ou seguir a trilha até quem o preparou.",
+          "Não existe resposta sem custo. A próxima equipe vai trabalhar com o que você registrar agora."
+        ],
+        choices: [
+          { id: "contain", label: "Conter o vestígio", description: "Prioriza a segurança; recebe um talismã e aumenta a confiança.", response: "O vestígio ficará isolado. Se a trilha esfriar, ao menos não permitiremos que a maldição volte a se formar.", effects: { trust: 2, seals: 1, chapterTwoChoice: "contain", xp: 35 } },
+          { id: "trace", label: "Seguir a trilha de energia", description: "Prioriza pistas para a próxima investigação.", response: "A trilha aponta para um segundo selo. Registramos as coordenadas antes que o fluxo se dissipasse.", effects: { clues: 2, chapterTwoChoice: "trace", xp: 25 } }
+        ]
+      },
+      sentinelAftermath: {
+        chapter: "CAPÍTULO 03 · O VÉU FRATURADO",
+        title: "Do outro lado da barreira",
+        sceneTitle: "O silêncio depois do véu",
+        sceneDescription: "A Sentinela caiu. O que parecia uma maldição isolada revela sinais de uma experiência deliberada com energia residual.",
+        sceneLocation: "CÂMARA DO VÉU",
+        sceneCondition: "INVESTIGAÇÃO EM ANDAMENTO",
+        speaker: "Aki Morino", role: "Supervisora de campo", portrait: "AM",
+        lines: [
+          "Você alcançou o núcleo, mas ele não foi construído apenas para manter algo do lado de fora. A barreira parece ter sido feita para observar o que acontecia do lado de dentro.",
+          "Há marcas de uma segunda pessoa nos registros. Não temos nome, rosto ou motivo — só uma assinatura de energia repetida em todos os locais.",
+          "O relatório será encaminhado à equipe de investigação. A operação termina aqui; a campanha, não."
+        ],
+        choices: [
+          { id: "secure", label: "Proteger os registros", description: "Fecha a operação com segurança e recupera um recurso.", response: "Os registros foram guardados em contenção. Não é a resposta final, mas impede que a mesma armadilha seja usada contra outra equipe.", effects: { trust: 2, potions: 1, chapterThreeChoice: "secure", xp: 45 } },
+          { id: "expose", label: "Distribuir o padrão para análise", description: "Ganha pistas adicionais para uma futura continuação.", response: "O padrão foi distribuído aos analistas. Agora qualquer barreira com a mesma assinatura poderá ser reconhecida.", effects: { clues: 2, chapterThreeChoice: "expose", xp: 60 } }
+        ]
+      }
+    },
+    training: {
+      flow: {
+        title: "Controle do Fluxo", kicker: "TREINO DE ENERGIA · MEMÓRIA",
+        description: "Aki demonstra uma sequência curta de controle. Memorize a ordem e reproduza os quatro passos sem perder o ritmo.",
+        steps: {
+          focus: { label: "Concentrar", icon: "凝", detail: "Reunir a energia no centro." },
+          flow: { label: "Circular", icon: "流", detail: "Manter o fluxo estável." },
+          release: { label: "Liberar", icon: "放", detail: "Soltar energia sem desperdiçar." },
+          seal: { label: "Selar", icon: "封", detail: "Fechar o ciclo com precisão." }
+        },
+        patterns: [["focus","flow","release","seal"],["flow","focus","seal","release"],["focus","seal","flow","release"]]
+      },
+      reflex: {
+        title: "Reflexos de Campo", kicker: "SIMULAÇÃO · LEITURA DE INTENÇÃO",
+        description: "Uma simulação de três situações ensina a responder à intenção do adversário em vez de agir por impulso.",
+        options: [
+          { id: "strike", label: "Punir a abertura", icon: "拳" },
+          { id: "guard", label: "Firmar a guarda", icon: "盾" },
+          { id: "dodge", label: "Sair da linha", icon: "躱" }
+        ],
+        scenarios: [
+          { title: "Ataque pesado anunciado", prompt: "A maldição prepara um golpe que vai cobrir boa parte do corredor. Qual resposta é mais segura?", correct: "dodge", explanation: "Sair da linha evita o golpe pesado se o teste for bem-sucedido; defender ainda deixa parte do impacto passar." },
+          { title: "O inimigo acumulou energia", prompt: "A criatura está concentrando energia e ainda não lançou o ataque. Qual é a melhor janela para pressionar?", correct: "strike", explanation: "A preparação abre uma janela para atacar antes que a energia se converta em dano." },
+          { title: "Golpe rápido à curta distância", prompt: "O ataque é rápido e a passagem estreita reduz o espaço de esquiva. Você quer reduzir o risco.", correct: "guard", explanation: "A guarda é a escolha mais consistente contra um golpe direto quando não há espaço para sair da linha." }
+        ]
+      },
+      investigation: {
+        title: "Perícia da Barreira", kicker: "CAPÍTULO 02 · INVESTIGAÇÃO",
+        description: "Cruze os sinais encontrados em Kurohama. Cada resposta precisa se apoiar numa evidência observável.",
+        questions: [
+          { title: "Registro temporal", prompt: "A barreira pulsa no mesmo intervalo de três minutos. Qual dado deve entrar primeiro no relatório?", choices: [
+            { id: "interval", label: "O pulso se repete no mesmo intervalo", correct: true }, { id: "echo", label: "O som parece mais alto no túnel", correct: false }, { id: "crowd", label: "Há mais pessoas perto da saída", correct: false }
+          ], explanation: "O intervalo fixo é reproduzível e permite prever quando a barreira se altera." },
+          { title: "Rastro de energia", prompt: "A densidade do resíduo cresce depois de cada pulso. Que hipótese combina melhor com os dados?", choices: [
+            { id: "weather", label: "A umidade do túnel está criando o resíduo", correct: false }, { id: "drain", label: "Algo atrai e drena energia a cada pulso", correct: true }, { id: "random", label: "A energia surge sem qualquer padrão", correct: false }
+          ], explanation: "A repetição e o aumento de densidade sugerem um processo que se alimenta do fluxo." },
+          { title: "Próximo ponto", prompt: "As marcas recentes e o fluxo residual apontam para o túnel leste. Qual é a próxima ação útil?", choices: [
+            { id: "leave", label: "Encerrar sem registrar o local", correct: false }, { id: "charge", label: "Entrar sem informar a equipe", correct: false }, { id: "east", label: "Marcar o túnel e preparar entrada coordenada", correct: true }
+          ], explanation: "Registrar o local e preparar a equipe transforma a pista numa operação verificável." }
+        ]
       }
     },
     enemies: {
@@ -132,14 +210,14 @@
         name: "Maldição do Eco",
         grade: "Grau 3",
         symbol: "響",
-        hp: 103,
-        attack: 12,
-        defense: 2,
-        evasion: 11,
-        stability: 13,
-        xp: 76,
-        ce: 16,
-        gold: 12,
+        hp: 70,
+        attack: 8,
+        defense: 1,
+        evasion: 9,
+        stability: 12,
+        xp: 140,
+        ce: 18,
+        gold: 18,
         intentWeights: [50, 32, 18],
         description: "Nascida do medo de ouvir passos atrás de si. A maldição repete padrões e castiga quem insiste no mesmo movimento."
       },
@@ -148,14 +226,14 @@
         name: "Devorador de Resíduos",
         grade: "Grau 2",
         symbol: "喰",
-        hp: 174,
-        attack: 17,
-        defense: 4,
-        evasion: 12,
-        stability: 15,
-        xp: 125,
-        ce: 22,
-        gold: 24,
+        hp: 128,
+        attack: 12,
+        defense: 3,
+        evasion: 11,
+        stability: 14,
+        xp: 235,
+        ce: 24,
+        gold: 30,
         intentWeights: [38, 42, 20],
         description: "Uma maldição que se alimenta de energia residual. Quando se prepara para um golpe pesado, abre uma janela curta para defesa ou esquiva."
       },
@@ -164,14 +242,14 @@
         name: "Sentinela do Véu",
         grade: "Grau 1",
         symbol: "封",
-        hp: 255,
-        attack: 22,
-        defense: 6,
-        evasion: 14,
-        stability: 17,
-        xp: 210,
-        ce: 30,
-        gold: 42,
+        hp: 190,
+        attack: 15,
+        defense: 4,
+        evasion: 12,
+        stability: 15,
+        xp: 340,
+        ce: 32,
+        gold: 55,
         intentWeights: [30, 50, 20],
         description: "Um guardião preso a uma barreira antiga. Aguenta pressão, prepara ataques fortes e pune o uso descuidado de energia."
       }
