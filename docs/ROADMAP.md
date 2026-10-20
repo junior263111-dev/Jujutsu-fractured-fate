@@ -39,11 +39,20 @@ RPG single-player de navegador inspirado no universo de Jujutsu Kaisen, com comb
 - [x] Workflow do GitHub Actions para validar sintaxe e executar testes.
 - [x] Layout responsivo e controles de teclado, mouse e toque.
 
-## Preparação obrigatória antes da versão 0.3
+## Versão 0.3 — Campanha, treino e progressão (implementada)
 
-A auditoria específica está em [MEGA-UPDATE-PREPARATION.md](MEGA-UPDATE-PREPARATION.md). Primeiro analisar o desequilíbrio inicial e definir métricas com simulações; só depois alterar as regras. O plano de preparação é o ponto de partida da próxima sessão, sem mudanças de gameplay nesta etapa.
+- [x] Três minigames jogáveis: memória de fluxo, resposta tática a intenções e perícia narrativa.
+- [x] Bônus de XP por primeira conclusão e recompensa reduzida, mas não zerada, nas repetições.
+- [x] Três etapas de campanha ligadas por combates, investigação e decisões salvas.
+- [x] Rebalanceamento de vida, ataque, evasão, custos e escalonamento.
+- [x] Migração de saves anteriores sem apagar fichas existentes.
+- [x] Testes para XP, minigames, desbloqueios e escala de inimigos.
 
-## Próxima prioridade: versão 0.3 — Combate mais profundo
+## Auditoria da atualização 0.3
+
+A análise original está em [MEGA-UPDATE-PREPARATION.md](MEGA-UPDATE-PREPARATION.md). Os problemas de XP, dificuldade e duração narrativa foram tratados na versão 0.3 com funcionalidades implementadas e testes regressivos.
+
+## Próxima prioridade: versão 0.4 — Combate mais profundo
 
 1. Separar intenção, rolagens e aplicação de efeitos em uma máquina de estados completamente determinística.
 2. Acrescentar animações curtas, hit-stop e feedback visual para erro, crítico, Black Flash, guarda perfeita, esquiva e efeito de técnica.
