@@ -10,13 +10,13 @@
     var oldHp = player.maxHp || 0;
     var oldCe = player.maxCe || 0;
     var a = player.attributes;
-    player.maxHp = 88 + a.vitality * 13 + (player.level - 1) * 8 + player.legacy * 5;
-    player.maxCe = 45 + a.control * 11 + (player.level - 1) * 5 + player.legacy * 4;
-    player.attackPower = 5 + player.level * 2 + a.strength * 2 + player.legacy * 2;
+    player.maxHp = 92 + a.vitality * 8 + (player.level - 1) * 10 + player.legacy * 6;
+    player.maxCe = 50 + a.control * 9 + (player.level - 1) * 6 + player.legacy * 5;
+    player.attackPower = 6 + player.level * 2 + a.strength + player.legacy * 2;
     player.defense = 1 + Math.floor(a.vitality / 2) + Math.floor((player.level - 1) / 3) + Math.floor(player.legacy / 2);
     player.accuracy = 1 + Math.floor(a.instinct / 2) + Math.floor((player.level - 1) / 3);
-    player.techniquePower = 5 + player.level + a.control * 2 + player.techniqueRank * 3 + player.legacy;
-    player.dodgeBonus = Math.floor(a.instinct / 2) + Math.floor(player.level / 4);
+    player.techniquePower = 5 + player.level + Math.floor(a.control * 1.5) + player.techniqueRank * 3 + player.legacy;
+    player.dodgeBonus = Math.floor(a.instinct / 2) + Math.floor(player.level / 5);
     if (preserveGain) {
       player.hp = clamp((player.hp || 0) + Math.max(0, player.maxHp - oldHp), 0, player.maxHp);
       player.ce = clamp((player.ce || 0) + Math.max(0, player.maxCe - oldCe), 0, player.maxCe);
@@ -50,9 +50,17 @@
         clues: 0,
         trust: 0,
         completedMissions: [],
-        routeFlags: {}
+        routeFlags: {},
+        trainingCompleted: {},
+        missionRewards: {},
+        investigationComplete: false,
+        chapterTwoComplete: false,
+        chapterThreeComplete: false,
+        chapterTwoChoice: null,
+        chapterThreeChoice: null
       },
       combat: null,
+      training: null,
       inventory: { potions: 2, seals: 1 },
       log: ["A supervisora Aki Morino iniciou o briefing da missão em Kurohama."],
       lastResult: null
@@ -71,15 +79,15 @@
 
   function enemyFor(id, level, wins, rebirths) {
     var base = DATA.enemies[id] || DATA.enemies.echo;
-    var scale = 1 + Math.max(0, level - 1) * 0.105 + Math.max(0, wins - 2) * 0.035 + Math.max(0, rebirths || 0) * 0.08;
+    var scale = 1 + Math.min(5, Math.max(0, level - 1)) * 0.045 + Math.max(0, wins - 4) * 0.012 + Math.max(0, rebirths || 0) * 0.045;
     return {
       id: base.id, name: base.name, grade: base.grade, symbol: base.symbol,
       maxHp: Math.round(base.hp * scale), hp: Math.round(base.hp * scale),
-      attack: Math.round(base.attack * (1 + Math.max(0, level - 1) * 0.055 + Math.max(0, rebirths || 0) * 0.035)),
-      defense: base.defense + Math.floor(Math.max(0, level - 1) / 4),
-      evasion: base.evasion + Math.floor(Math.max(0, level - 1) / 5),
-      stability: base.stability + Math.floor(Math.max(0, level - 1) / 4),
-      xp: Math.round(base.xp * (1 + Math.max(0, level - 1) * 0.1)),
+      attack: Math.round(base.attack * (1 + Math.min(5, Math.max(0, level - 1)) * 0.025 + Math.max(0, rebirths || 0) * 0.02)),
+      defense: base.defense + Math.floor(Math.max(0, level - 6) / 6),
+      evasion: base.evasion + Math.floor(Math.max(0, level - 8) / 7),
+      stability: base.stability + Math.floor(Math.max(0, level - 8) / 6),
+      xp: Math.round(base.xp * (1 + Math.min(4, Math.max(0, level - 1)) * 0.035)),
       ceReward: base.ce, gold: base.gold, description: base.description,
       intentWeights: base.intentWeights.slice(), intent: "strike",
       stunned: false, exposed: false, bleedTurns: 0, bleeds: 0, charged: false, warded: false
@@ -99,6 +107,8 @@
     if (state.combat) return { ok: false, message: "O combate já está em andamento." };
     var base = DATA.enemies[enemyId];
     if (!base) return { ok: false, message: "Inimigo desconhecido." };
+    if (enemyId === "devourer" && !state.story.investigationComplete) return { ok: false, message: "Conclua a perícia da barreira antes de entrar no túnel leste." };
+    if (enemyId === "sentinel" && (!state.story.chapterTwoComplete || state.player.level < 5)) return { ok: false, message: "A Sentinela exige a operação anterior concluída e nível 5." };
     state.combat = enemyFor(enemyId, state.player.level, state.player.wins, state.player.rebirths);
     state.combat.round = 1;
     state.combat.missionId = enemyId;
@@ -117,7 +127,7 @@
     while (p.xp >= p.nextXp) {
       p.xp -= p.nextXp;
       p.level += 1;
-      p.nextXp = Math.round(p.nextXp * 1.32);
+      p.nextXp = Math.round(p.nextXp * 1.18);
       p.skillPoints += 3;
       refreshDerived(p, true);
       p.hp = p.maxHp;
@@ -164,6 +174,8 @@
     if (effects.xp) gainXP(state, effects.xp);
     if (effects.openingChoice) state.story.openingChoice = effects.openingChoice;
     if (effects.endingChoice) state.story.endingChoice = effects.endingChoice;
+    if (effects.chapterTwoChoice) state.story.chapterTwoChoice = effects.chapterTwoChoice;
+    if (effects.chapterThreeChoice) state.story.chapterThreeChoice = effects.chapterThreeChoice;
     if (choice.response) state.log.unshift((node.speaker || "Personagem") + ": " + choice.response);
     if (effects.openingChoice) state.log.unshift("Prioridade registrada: " + choice.label + ".");
     if (effects.endingChoice) state.log.unshift("Relatório atualizado: " + choice.label + ".");
@@ -188,12 +200,12 @@
     var damage = Math.max(1, p.attackPower + damageRoll - enemy.defense);
     if (result.critical) damage = Math.round(damage * 1.5);
     var bfRoll = rollDie(20, rng);
-    var bfThreshold = Math.max(16, 20 - Math.floor(p.attributes.control / 2));
+    var bfThreshold = Math.max(16, 20 - p.attributes.control);
     result.bfRoll = bfRoll;
     result.bfThreshold = bfThreshold;
     if (bfRoll >= bfThreshold) {
       result.blackFlash = true;
-      damage = Math.round(damage * 2.55);
+      damage = Math.round(damage * 2.25);
       state.log.unshift("BLACK FLASH! d20 " + bfRoll + " ≥ " + bfThreshold + ". O ataque físico entrou em ressonância!");
       p.ce = clamp(p.ce + 8, 0, p.maxCe);
       enemy.stunned = true;
@@ -241,7 +253,7 @@
     if (enemy.hp > 0) {
       if (technique.effect === "stun") {
         var effectRoll = rollDie(20, rng) + p.attributes.control + p.techniqueRank;
-        if (effectRoll >= enemy.stability + 7) {
+        if (effectRoll >= enemy.stability + 3) {
           enemy.stunned = true;
           state.log.unshift("Teste de efeito " + effectRoll + " superou a resistência. O inimigo foi interrompido.");
         } else {
@@ -285,14 +297,14 @@
     }
     var isHeavy = enemy.intent === "heavy";
     var enemyRoll = rollDie(20, rng);
-    var attackBonus = 3 + Math.floor(p.level / 4);
+    var attackBonus = 1 + Math.floor(p.level / 5);
     var total = enemyRoll + attackBonus;
     var target = 10 + p.dodgeBonus;
     var hit = enemyRoll !== 1 && (enemyRoll === 20 || total >= target);
     if (action === "dodge") {
       var dodgeRoll = rollDie(20, rng);
       var dodgeTotal = dodgeRoll + p.dodgeBonus;
-      var dodgeTarget = isHeavy ? 17 : 13;
+      var dodgeTarget = isHeavy ? 16 : 12;
       result.dodgeRoll = dodgeRoll;
       result.dodgeTotal = dodgeTotal;
       result.dodgeTarget = dodgeTarget;
@@ -308,14 +320,14 @@
     if (!hit) {
       state.log.unshift(enemy.name + " errou: d20 " + enemyRoll + " + " + attackBonus + " = " + total + " contra defesa " + target + ".");
     } else {
-      var die = rollDie(8, rng);
+      var die = rollDie(6, rng);
       var rawDamage = enemy.attack + die - p.defense;
-      if (isHeavy) rawDamage = Math.round(rawDamage * 1.45);
+      if (isHeavy) rawDamage = Math.round(rawDamage * 1.25);
       if (enemy.charged) {
-        rawDamage = Math.round(rawDamage * 1.3);
+        rawDamage = Math.round(rawDamage * 1.2);
         enemy.charged = false;
       }
-      if (enemyRoll === 20) rawDamage = Math.round(rawDamage * 1.5);
+      if (enemyRoll === 20) rawDamage = Math.round(rawDamage * 1.4);
       var damage = Math.max(1, rawDamage);
       if (action === "guard") {
         damage = Math.max(1, Math.round(damage * 0.4));
@@ -352,18 +364,33 @@
     p.wins += 1;
     p.gold += enemy.gold;
     p.ce = clamp(p.ce + enemy.ceReward, 0, p.maxCe);
-    var levels = gainXP(state, enemy.xp);
+    state.story.missionRewards = state.story.missionRewards || {};
+    var firstClear = !state.story.missionRewards[enemy.id];
+    state.story.missionRewards[enemy.id] = true;
+    var firstClearBonus = { echo: 35, devourer: 45, sentinel: 60 }[enemy.id] || 0;
+    var xpAward = firstClear ? enemy.xp + firstClearBonus : Math.max(25, Math.round(enemy.xp * 0.45));
+    var levels = gainXP(state, xpAward);
     var firstChapter = enemy.id === "echo" && !state.story.chapterOneComplete;
+    var secondChapter = enemy.id === "devourer" && !state.story.chapterTwoComplete;
+    var thirdChapter = enemy.id === "sentinel" && !state.story.chapterThreeComplete;
     state.story.completedMissions.push(enemy.missionId || enemy.id);
     if (firstChapter) {
       state.story.chapterOneComplete = true;
       state.story.dialogueNode = "aftermath";
       state.view = "dialogue";
+    } else if (secondChapter) {
+      state.story.chapterTwoComplete = true;
+      state.story.dialogueNode = "devourerAftermath";
+      state.view = "dialogue";
+    } else if (thirdChapter) {
+      state.story.chapterThreeComplete = true;
+      state.story.dialogueNode = "sentinelAftermath";
+      state.view = "dialogue";
     } else {
       state.view = "mission";
     }
-    state.lastResult = { type: "victory", enemyName: enemy.name, xp: enemy.xp, gold: enemy.gold, levels: levels };
-    state.log.unshift("Exorcismo concluído: +" + enemy.xp + " XP, +" + enemy.gold + " ouro e +" + enemy.ceReward + " energia.");
+    state.lastResult = { type: "victory", enemyName: enemy.name, xp: xpAward, gold: enemy.gold, levels: levels, firstClear: firstClear };
+    state.log.unshift("Exorcismo concluído: +" + xpAward + " XP" + (firstClear ? " (bônus de primeira conclusão)" : " (repetição)") + ", +" + enemy.gold + " ouro e +" + enemy.ceReward + " energia.");
     state.combat = null;
     state.log = state.log.slice(0, 10);
     return state.lastResult;
@@ -381,7 +408,7 @@
     } else if (action === "guard" || action === "dodge") {
       result = { action: action };
     } else if (action === "meditate") {
-      var restore = 17 + state.player.attributes.control * 3;
+      var restore = 20 + state.player.attributes.control * 4;
       var oldCe = state.player.ce;
       state.player.ce = clamp(state.player.ce + restore, 0, state.player.maxCe);
       result = { action: action, restored: state.player.ce - oldCe };
@@ -391,15 +418,15 @@
       if (state.player.hp >= state.player.maxHp) return { ok: false, message: "Sua vida já está cheia." };
       state.inventory.potions -= 1;
       var oldHp = state.player.hp;
-      state.player.hp = clamp(state.player.hp + 38, 0, state.player.maxHp);
+      state.player.hp = clamp(state.player.hp + 42, 0, state.player.maxHp);
       result = { action: action, restored: state.player.hp - oldHp };
       state.log.unshift("Poção usada: +" + result.restored + " vida.");
     } else if (action === "domain") {
       if (!state.player.domainUnlocked || state.player.level < 8) return { ok: false, message: "Expansão de Domínio exige nível 8." };
-      if (state.player.ce < 42) return { ok: false, message: "Energia insuficiente: são necessários 42 pontos." };
-      state.player.ce -= 42;
+      if (state.player.ce < 35) return { ok: false, message: "Energia insuficiente: são necessários 35 pontos." };
+      state.player.ce -= 35;
       var domainRoll = rollDie(10, rng);
-      var domainDamage = Math.max(1, Math.round(state.player.techniquePower * 1.8) + domainRoll - state.combat.defense);
+      var domainDamage = Math.max(1, Math.round(state.player.techniquePower * 2.1) + domainRoll - state.combat.defense);
       state.combat.hp = clamp(state.combat.hp - domainDamage, 0, state.combat.maxHp);
       state.combat.stunned = true;
       result = { action: action, damage: domainDamage, roll: domainRoll };
@@ -429,6 +456,97 @@
     }
     state.log = state.log.slice(0, 10);
     return { ok: true, result: result, outcome: "continue" };
+  }
+
+  function startTraining(state, gameId) {
+    if (!state || state.combat || state.view === "combat") return { ok: false, message: "Não é possível treinar durante um combate." };
+    if (!DATA.training[gameId]) return { ok: false, message: "Treino desconhecido." };
+    if (gameId === "investigation" && !state.story.chapterOneComplete) return { ok: false, message: "A perícia da barreira só pode ser iniciada depois da primeira missão." };
+    var def = DATA.training[gameId];
+    state.training = {
+      id: gameId,
+      phase: gameId === "flow" ? "preview" : "play",
+      round: 0,
+      score: 0,
+      picks: [],
+      patternIndex: gameId === "flow" ? ((state.player.level + state.player.wins + state.story.clues - 1) % def.patterns.length + def.patterns.length) % def.patterns.length : 0,
+      feedback: "Prepare-se para o exercício.",
+      result: null
+    };
+    state.view = "training";
+    state.log.unshift("Treino iniciado: " + def.title + ".");
+    state.log = state.log.slice(0, 10);
+    return { ok: true, message: def.title + " iniciado." };
+  }
+
+  function finishTraining(state) {
+    var game = state.training;
+    var firstClear = !state.story.trainingCompleted[game.id];
+    var xpAward = firstClear ? (game.id === "investigation" ? 55 + game.score * 15 : 50 + game.score * 12) : (game.id === "investigation" ? 12 : 14);
+    if (firstClear) state.story.trainingCompleted[game.id] = true;
+    var goldAward = firstClear ? ({ flow: 4, reflex: 6, investigation: 8 }[game.id] || 0) : 0;
+    var ceRestore = game.id === "flow" ? (firstClear ? 18 : 8) : 0;
+    var oldCe = state.player.ce;
+    state.player.ce = clamp(state.player.ce + ceRestore, 0, state.player.maxCe);
+    state.player.gold += goldAward;
+    var levels = gainXP(state, xpAward);
+    if (game.id === "investigation" && firstClear) {
+      state.story.investigationComplete = true;
+      state.story.clues += game.score;
+      state.story.trust += Math.floor(game.score / 2);
+      state.story.routeFlags.barrierAnalyzed = true;
+    }
+    game.phase = "complete";
+    game.result = {
+      score: game.score,
+      total: game.id === "flow" ? 4 : game.id === "reflex" ? DATA.training.reflex.scenarios.length : DATA.training.investigation.questions.length,
+      xp: xpAward, gold: goldAward, ce: state.player.ce - oldCe, firstClear: firstClear, levels: levels
+    };
+    game.feedback = firstClear
+      ? "Treino registrado. A equipe guardou seus resultados e os usará no próximo briefing."
+      : "Prática concluída. A recompensa de primeira conclusão já foi recebida.";
+    state.log.unshift("Treino concluído: " + DATA.training[game.id].title + " · " + game.score + "/" + game.result.total + " acertos · +" + xpAward + " XP.");
+    state.log = state.log.slice(0, 10);
+    return { ok: true, finished: true, result: game.result, message: game.feedback };
+  }
+
+  function applyTrainingChoice(state, choiceId) {
+    var game = state && state.training;
+    if (!game || state.view !== "training") return { ok: false, message: "Nenhum treino está ativo." };
+    if (game.phase === "complete") return { ok: false, message: "Esse treino já terminou." };
+    if (game.id === "flow") {
+      if (game.phase === "preview") {
+        if (choiceId !== "start") return { ok: false, message: "Leia a sequência e inicie o exercício." };
+        game.phase = "play";
+        game.feedback = "Reproduza a sequência de memória, da primeira à quarta ação.";
+        return { ok: true, message: game.feedback };
+      }
+      var pattern = DATA.training.flow.patterns[game.patternIndex];
+      if (!DATA.training.flow.steps[choiceId] || game.picks.length >= pattern.length) return { ok: false, message: "Ação de treino inválida." };
+      var expected = pattern[game.picks.length];
+      var correct = choiceId === expected;
+      game.picks.push(choiceId);
+      if (correct) game.score += 1;
+      game.feedback = correct ? "Passo correto. A energia manteve o fluxo estável." : "Passo fora de ordem. Observe o ritmo e continue até fechar o ciclo.";
+      if (game.picks.length >= pattern.length) return finishTraining(state);
+      return { ok: true, correct: correct, message: game.feedback };
+    }
+    var rounds = game.id === "reflex" ? DATA.training.reflex.scenarios : DATA.training.investigation.questions;
+    var item = rounds[game.round];
+    if (!item) return { ok: false, message: "Não há mais etapas neste treino." };
+    var validChoice = game.id === "reflex"
+      ? DATA.training.reflex.options.some(function (option) { return option.id === choiceId; })
+      : item.choices.some(function (option) { return option.id === choiceId; });
+    if (!validChoice) return { ok: false, message: "Escolha inválida para esta etapa." };
+    var correctChoice = game.id === "reflex"
+      ? choiceId === item.correct
+      : item.choices.some(function (option) { return option.id === choiceId && option.correct; });
+    if (correctChoice) game.score += 1;
+    game.round += 1;
+    game.feedback = correctChoice ? item.explanation : "Ainda não. " + item.explanation;
+    var maxRounds = game.id === "reflex" ? DATA.training.reflex.scenarios.length : DATA.training.investigation.questions.length;
+    if (game.round >= maxRounds) return finishTraining(state);
+    return { ok: true, correct: correctChoice, message: game.feedback };
   }
 
   function canRebirth(state) {
@@ -464,6 +582,7 @@
     clamp: clamp, rollDie: rollDie, refreshDerived: refreshDerived, createState: createState,
     rankForLevel: rankForLevel, enemyFor: enemyFor, chooseIntent: chooseIntent, startCombat: startCombat,
     gainXP: gainXP, spendSkillPoint: spendSkillPoint, applyDialogueChoice: applyDialogueChoice,
+    startTraining: startTraining, applyTrainingChoice: applyTrainingChoice, finishTraining: finishTraining,
     rollPhysical: rollPhysical, rollTechnique: rollTechnique, resolveEnemyTurn: resolveEnemyTurn,
     winCombat: winCombat, takeTurn: takeTurn, canRebirth: canRebirth, rebirth: rebirth,
     hpPercent: hpPercent, xpPercent: xpPercent, cePercent: cePercent, copy: copy
