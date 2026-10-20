@@ -1,6 +1,6 @@
 # Jujutsu: Fractured Fate
 
-Protótipo de RPG de navegador feito por fã, em português, inspirado no universo de Jujutsu Kaisen. Esta versão troca o combate repetitivo por **turnos táticos com dados**, ficha de personagem, técnicas inatas, diálogos, escolhas persistentes, progressão e rebirth.
+**RPG de navegador feito por fã, em português, inspirado no universo de Jujutsu Kaisen.** A versão 0.3 reúne combate tático por dados, minigames jogáveis, três etapas de campanha, escolhas persistentes e progressão com recompensas de primeira conclusão.
 
 > Projeto de fã, não oficial e sem afiliação com os criadores ou detentores de Jujutsu Kaisen. A primeira missão e os personagens de apoio são originais. O projeto não contém roteiro, páginas da wiki, imagens ou trilhas copiados da obra.
 
@@ -11,6 +11,34 @@ Protótipo de RPG de navegador feito por fã, em português, inspirado no univer
 3. Abra **index.html** no Edge, Chrome ou outro navegador moderno.
 
 Não é necessário instalar dependências, configurar Node.js ou iniciar um servidor. O save fica no armazenamento local do navegador. Para jogar em outro dispositivo, use os botões Exportar save / Importar save.
+
+## O que mudou na atualização 0.3
+
+### Progressão e recompensas
+- A primeira conclusão de cada missão dá bônus de XP; repetições continuam válidas, mas pagam menos para não substituir o restante do jogo por farm de um único inimigo.
+- A curva de XP cresce em passos mais suaves (fator de 1,18 por nível), e os treinos recompensam de acordo com o desempenho.
+- Primeira conclusão: Eco 175 XP, Devorador 280 XP e Sentinela 400 XP. Repetições recebem 45% da recompensa-base, com mínimo de 25 XP.
+- Treinos na primeira conclusão: Controle do Fluxo (50–98 XP), Reflexos de Campo (50–86 XP) e Perícia da Barreira (55–100 XP). Repetições rendem 12–14 XP.
+
+### Minigames jogáveis ligados à campanha
+- **Controle do Fluxo:** memorize e reproduza uma sequência de quatro passos; o padrão muda conforme seu progresso.
+- **Reflexos de Campo:** responda a três intenções simuladas — ataque pesado, preparação e golpe direto — com uma decisão tática.
+- **Perícia da Barreira:** resolva três questões de evidência; os acertos viram pistas e a conclusão abre a operação do túnel leste.
+- Os resultados, as recompensas de primeira conclusão e os capítulos liberados ficam no save.
+
+### Campanha expandida
+- Capítulo 01: incidente de Kurohama e relatório com escolhas.
+- Capítulo 02: perícia da barreira, confronto contra o Devorador de Resíduos e decisão sobre conter o vestígio ou seguir sua trilha.
+- Capítulo 03: confronto contra a Sentinela do Véu e decisão sobre guardar ou distribuir os registros.
+- O fim do Capítulo 03 marca o fim do conteúdo narrativo implementado nesta versão; a continuação ainda é futura.
+
+### Balanceamento implementado
+- A Maldição do Eco passa de 103 para 70 de vida, evasão 11 para 9 e ataque 12 para 8; a curva de escalonamento por nível foi reduzida.
+- Acertos inimigos têm bônus-base menor; ataques pesados e carregados foram suavizados.
+- Custos das técnicas caíram para 14–18 de energia, meditação restaura mais energia, poções curam 42 e Expansão de Domínio custa 35.
+- Black Flash tem probabilidade de 10% no Controle inicial, chegando a 25% a partir de Controle 4.
+
+## Histórico da versão 0.2
 
 ## O que mudou na atualização 0.2
 
@@ -114,6 +142,6 @@ Os números de dano, custos, escalas, limites de dados e requisitos de nível s�
 
 Esta versão é single-player e offline; não usa um serviço de IA para escrever a história. O randomizer de escolhas e a geração de enredo por IA ficam para uma fase futura, depois que as regras de campanha, salvamento, balanceamento e testes estiverem mais sólidas. Se uma IA for conectada no futuro, as credenciais deverão ficar num backend seguro, nunca embutidas no JavaScript do navegador.
 
-Antes da próxima implementação, veja [docs/MEGA-UPDATE-PREPARATION.md](docs/MEGA-UPDATE-PREPARATION.md): auditoria numérica, alvos de dificuldade, fórmulas a rever e critérios para a mega atualização. O planejamento vem antes de qualquer nova alteração de gameplay.
+A auditoria de balanceamento anterior está em [docs/MEGA-UPDATE-PREPARATION.md](docs/MEGA-UPDATE-PREPARATION.md). Os principais problemas — XP inicial abaixo do necessário, primeira luta longa e conteúdo narrativo curto — foram endereçados na versão 0.3 e cobertos por testes.
 
 Veja [docs/ROADMAP.md](docs/ROADMAP.md) para o plano de trabalho geral.
