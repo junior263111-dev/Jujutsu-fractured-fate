@@ -5,6 +5,7 @@
   var SAVE_KEY = "jujutsu-fractured-fate-save-v2";
   var state = null;
   var selectedTechnique = "ratio";
+  var selectedPath = "balanced";
   var lastRollDisplay = null;
   var toastTimer = null;
   var $ = function (id) { return document.getElementById(id); };
@@ -23,6 +24,7 @@
     parsed.story.chapterTwoChoice = parsed.story.chapterTwoChoice || null;
     parsed.story.chapterThreeChoice = parsed.story.chapterThreeChoice || null;
     parsed.story.contractsClaimed = parsed.story.contractsClaimed || {};
+    parsed.player.pathId = DATA.paths[parsed.player.pathId] ? parsed.player.pathId : "balanced";
     parsed.training = null;
     if (parsed.view === "training") parsed.view = "mission";
     return parsed;
@@ -61,8 +63,9 @@
     $("save-summary").textContent = saved
       ? "Save encontrado: " + saved.player.name + " · nível " + saved.player.level + " · " + saved.player.wins + " exorcismo(s) · " + saved.player.rebirths + " rebirth(s)."
       : "Crie uma ficha para iniciar o Capítulo 01.";
-    if (saved) selectedTechnique = saved.techniqueId;
+    if (saved) { selectedTechnique = saved.techniqueId; selectedPath = saved.player.pathId || "balanced"; }
     renderTechniqueCards();
+    renderPathCards();
   }
   function showGame() {
     $("intro-screen").classList.add("hidden");
@@ -80,10 +83,18 @@
         '<span class="technique-detail">' + escapeHtml(item.principle) + '</span></button>';
     }).join("");
   }
+  function renderPathCards() {
+    var grid = $("path-grid");
+    grid.innerHTML = Object.keys(DATA.paths).map(function (id) {
+      var item = DATA.paths[id];
+      return '<button class="path-card' + (id === selectedPath ? " selected" : "") + '" data-path="' + id + '" aria-pressed="' + (id === selectedPath) + '"><span class="path-symbol">' + escapeHtml(item.symbol) + '</span><span class="path-copy"><span class="path-role">' + escapeHtml(item.category) + '</span><strong>' + escapeHtml(item.name) + '</strong><span class="path-description">' + escapeHtml(item.description) + '</span><span class="path-bonus">' + escapeHtml(item.bonus) + '</span></span></button>';
+    }).join("");
+  }
+
   function startNewGame() {
     if (safeLoad() && !window.confirm("Começar uma nova jornada? O save atual continuará no histórico do navegador, mas será substituído para este jogo.")) return;
     var name = $("player-name").value.trim() || "Estudante";
-    state = CORE.createState(selectedTechnique, name);
+    state = CORE.createState(selectedTechnique, name, selectedPath);
     lastRollDisplay = null;
     showGame();
     render();
@@ -94,6 +105,7 @@
     state = safeLoad();
     if (!state) { toast("Nenhum save válido foi encontrado."); showIntro(); return; }
     selectedTechnique = state.techniqueId;
+    selectedPath = state.player.pathId || "balanced";
     lastRollDisplay = null;
     showGame();
     render();
@@ -366,6 +378,7 @@
     $("rank-label").textContent = CORE.rankForLevel(p.level);
     $("profile-name").textContent = p.name;
     $("profile-technique").textContent = tech.name;
+    $("profile-path").textContent = "Especialização · " + (DATA.paths[p.pathId] || DATA.paths.balanced).name;
     $("profile-symbol").textContent = tech.kanji;
     $("level-label").textContent = p.level;
     $("grade-pill").textContent = CORE.rankForLevel(p.level).toUpperCase();
@@ -587,6 +600,12 @@
   }
 
   document.addEventListener("click", function (event) {
+    var pathCard = event.target.closest("[data-path]");
+    if (pathCard) {
+      selectedPath = pathCard.getAttribute("data-path");
+      renderPathCards();
+      return;
+    }
     var techniqueCard = event.target.closest("[data-technique]");
     if (techniqueCard) {
       selectedTechnique = techniqueCard.getAttribute("data-technique");
@@ -610,6 +629,8 @@
   var existing = safeLoad();
   if (existing) selectedTechnique = existing.techniqueId;
   renderTechniqueCards();
+  if (existing) selectedPath = existing.player.pathId || "balanced";
+  renderPathCards();
   $("resume-btn").classList.toggle("hidden", !existing);
   if (existing) $("save-summary").textContent = "Save encontrado: " + existing.player.name + " · nível " + existing.player.level + " · " + existing.player.wins + " exorcismo(s) · " + existing.player.rebirths + " rebirth(s).";
   showIntro();
