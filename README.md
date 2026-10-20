@@ -1,4 +1,4 @@
-# Jujutsu: Fractured Fate
+# Jujutsu: Fractured Fate — v0.4 Overhaul
 
 **RPG de navegador feito por fã, em português, inspirado no universo de Jujutsu Kaisen.** A versão 0.3 reúne combate tático por dados, minigames jogáveis, três etapas de campanha, escolhas persistentes e progressão com recompensas de primeira conclusão.
 
@@ -11,6 +11,27 @@
 3. Abra **index.html** no Edge, Chrome ou outro navegador moderno.
 
 Não é necessário instalar dependências, configurar Node.js ou iniciar um servidor. O save fica no armazenamento local do navegador. Para jogar em outro dispositivo, use os botões Exportar save / Importar save.
+
+## O que mudou na atualização 0.4 — Overhaul
+
+### Novas decisões táticas
+- Talismã de selamento (tecla 8): gasta um talismã para cancelar a intenção inimiga atual, inclusive a preparação de um ataque pesado.
+- Guarda contra ataque pesado: reduz muito mais o dano e devolve um contra-ataque se o golpe conectar.
+- A Sentinela do Véu tem uma segunda fase: abaixo de 50% de vida, rompe o primeiro selo, perde o turno de transição e fica mais agressiva.
+
+### Contratos da escola
+- Disciplina de Campo: conclua Controle do Fluxo e Reflexos de Campo.
+- Primeiro Exorcismo: finalize a primeira missão.
+- Relatório de Investigação: conclua a perícia e reúna pistas.
+- Três Alvos: vença pela primeira vez as três operações principais.
+- Contratos podem ser resgatados uma vez e pagam XP, ouro e talismãs. Talismãs agora têm uso real em combate.
+
+### Interface
+- Paleta global redesenhada em azul-petróleo, ciano e rosa, com contrastes novos para as áreas principais.
+- Contratos exibem requisitos, estado e recompensa antes do resgate.
+- O combate informa quando a guarda vira contra-ataque, quando um talismã cancela um golpe e quando a Sentinela entra na segunda fase.
+
+### Versão 0.3 — Campanha e treinos
 
 ## O que mudou na atualização 0.3
 
@@ -142,6 +163,6 @@ Os números de dano, custos, escalas, limites de dados e requisitos de nível s�
 
 Esta versão é single-player e offline; não usa um serviço de IA para escrever a história. O randomizer de escolhas e a geração de enredo por IA ficam para uma fase futura, depois que as regras de campanha, salvamento, balanceamento e testes estiverem mais sólidas. Se uma IA for conectada no futuro, as credenciais deverão ficar num backend seguro, nunca embutidas no JavaScript do navegador.
 
-A auditoria de balanceamento anterior está em [docs/MEGA-UPDATE-PREPARATION.md](docs/MEGA-UPDATE-PREPARATION.md). Os principais problemas — XP inicial abaixo do necessário, primeira luta longa e conteúdo narrativo curto — foram endereçados na versão 0.3 e cobertos por testes.
+A auditoria de balanceamento original está em [docs/MEGA-UPDATE-PREPARATION.md](docs/MEGA-UPDATE-PREPARATION.md). A versão 0.4 acrescenta mais opções táticas, contratos resgatáveis e uma fase de chefe, além dos sistemas narrativos e de treino da versão anterior.
 
 Veja [docs/ROADMAP.md](docs/ROADMAP.md) para o plano de trabalho geral.
