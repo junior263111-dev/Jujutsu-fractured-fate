@@ -114,4 +114,6 @@ Os números de dano, custos, escalas, limites de dados e requisitos de nível s�
 
 Esta versão é single-player e offline; não usa um serviço de IA para escrever a história. O randomizer de escolhas e a geração de enredo por IA ficam para uma fase futura, depois que as regras de campanha, salvamento, balanceamento e testes estiverem mais sólidas. Se uma IA for conectada no futuro, as credenciais deverão ficar num backend seguro, nunca embutidas no JavaScript do navegador.
 
-Veja [docs/ROADMAP.md](docs/ROADMAP.md) para o plano de trabalho.
+Antes da próxima implementação, veja [docs/MEGA-UPDATE-PREPARATION.md](docs/MEGA-UPDATE-PREPARATION.md): auditoria numérica, alvos de dificuldade, fórmulas a rever e critérios para a mega atualização. O planejamento vem antes de qualquer nova alteração de gameplay.
+
+Veja [docs/ROADMAP.md](docs/ROADMAP.md) para o plano de trabalho geral.
