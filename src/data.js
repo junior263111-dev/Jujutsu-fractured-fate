@@ -4,10 +4,10 @@
     version: "0.4.0",
     title: "Jujutsu: Fractured Fate",
     paths: {
-      balanced: { id: "balanced", name: "Versátil", symbol: "均", category: "Equilíbrio", description: "Sem fraquezas marcantes. Ideal para experimentar as quatro ações.", bonus: "Sem modificadores; flexibilidade total." },
-      vanguard: { id: "vanguard", name: "Punho de Exorcista", symbol: "拳", category: "Ofensiva", description: "Transforma cada abertura em pressão física. Melhor para quem lê as intenções e contra-ataca.", bonus: "+2 de ataque físico." },
-      conduit: { id: "conduit", name: "Condutor de Energia", symbol: "呪", category: "Técnica", description: "Amplia a reserva e a potência da técnica inata para sequências de controle.", bonus: "+15 energia máxima e +2 potência técnica." },
-      guardian: { id: "guardian", name: "Guardião do Véu", symbol: "盾", category: "Defesa", description: "Prioriza sobrevivência e guarda, tolerando erros durante missões difíceis.", bonus: "+18 vida máxima e +1 defesa." }
+      balanced: { id: "balanced", name: "Versátil", symbol: "均", category: "Equilíbrio", description: "Sem fraquezas marcantes. Ideal para experimentar as quatro ações.", bonus: "Sem modificadores; flexibilidade total.", hp: 0, ce: 0, attack: 0, defense: 0, techniquePower: 0 },
+      vanguard: { id: "vanguard", name: "Punho de Exorcista", symbol: "拳", category: "Ofensiva", description: "Transforma cada abertura em pressão física. Melhor para quem lê as intenções e contra-ataca.", bonus: "+2 de ataque físico.", hp: 0, ce: 0, attack: 2, defense: 0, techniquePower: 0 },
+      conduit: { id: "conduit", name: "Condutor de Energia", symbol: "呪", category: "Técnica", description: "Amplia a reserva e a potência da técnica inata para sequências de controle.", bonus: "+15 energia máxima e +2 potência técnica.", hp: 0, ce: 15, attack: 0, defense: 0, techniquePower: 2 },
+      guardian: { id: "guardian", name: "Guardião do Véu", symbol: "盾", category: "Defesa", description: "Prioriza sobrevivência e guarda, tolerando erros durante missões difíceis.", bonus: "+18 vida máxima e +1 defesa.", hp: 18, ce: 0, attack: 0, defense: 1, techniquePower: 0 }
     },
     techniques: {
       speech: {
