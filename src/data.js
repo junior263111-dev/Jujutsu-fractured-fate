@@ -1,51 +1,129 @@
 (function (root) {
   "use strict";
   root.JFF_DATA = {
-    version: "0.1.0",
+    version: "0.2.0",
     title: "Jujutsu: Fractured Fate",
-    disclaimer: "Projeto de fã, não oficial e sem afiliação com os criadores ou detentores de Jujutsu Kaisen.",
-    styles: {
-      echo: {
-        id: "echo",
-        name: "Punho Ecoante",
-        role: "Combate corpo a corpo",
-        icon: "拳",
-        color: "rose",
-        description: "Encadeie golpes rápidos e use uma segunda onda de energia para quebrar a defesa.",
-        passive: "Combo de 4 golpes causa dano extra.",
-        techniqueName: "Impacto Retardado",
-        techniqueDescription: "Um golpe carregado que deixa a maldição vulnerável ao próximo ataque.",
-        ceCost: 10,
-        damageScale: 1.65,
-        effect: "expose"
+    techniques: {
+      speech: {
+        id: "speech",
+        name: "Fala Amaldiçoada",
+        kanji: "言",
+        category: "Controle",
+        description: "Uma ordem carregada de energia amaldiçoada pode quebrar o ritmo do adversário.",
+        principle: "Pode interromper um inimigo quando o teste de efeito supera sua resistência.",
+        cost: 20,
+        multiplier: 1.05,
+        effect: "stun",
+        effectName: "Ordem restritiva",
+        masteryText: "Maestria melhora a potência da técnica e os testes de controle."
       },
-      shadow: {
-        id: "shadow",
-        name: "Sombra Vinculada",
-        role: "Controle de campo",
-        icon: "影",
-        color: "violet",
-        description: "Prenda o alvo por um instante para interromper seu ritmo e abrir espaço.",
-        passive: "Esquivas perfeitas recuperam energia amaldiçoada.",
-        techniqueName: "Laço Sombrio",
-        techniqueDescription: "Causa dano moderado e interrompe o próximo ataque inimigo.",
-        ceCost: 14,
-        damageScale: 1.15,
-        effect: "stun"
+      blood: {
+        id: "blood",
+        name: "Manipulação de Sangue",
+        kanji: "血",
+        category: "Pressão contínua",
+        description: "Converte energia amaldiçoada em um ataque preciso que deixa um efeito persistente.",
+        principle: "Acertos aplicam sangramento por duas rodadas.",
+        cost: 18,
+        multiplier: 1.3,
+        effect: "bleed",
+        effectName: "Sangramento",
+        masteryText: "Maestria eleva o dano da técnica e o dano persistente."
       },
-      flow: {
-        id: "flow",
-        name: "Fluxo Reverso",
-        role: "Precisão e resistência",
-        icon: "流",
-        color: "cyan",
-        description: "Controle sua energia para reforçar o corpo, sobreviver e responder com precisão.",
-        passive: "Começa cada combate com defesa reforçada.",
-        techniqueName: "Reforço Amaldiçoado",
-        techniqueDescription: "Fortalece os próximos golpes e reduz o dano recebido.",
-        ceCost: 12,
-        damageScale: 1.0,
-        effect: "empower"
+      ratio: {
+        id: "ratio",
+        name: "Técnica da Proporção",
+        kanji: "比",
+        category: "Precisão",
+        description: "Busca o ponto fraco do alvo e prepara uma abertura para o próximo ataque físico.",
+        principle: "Marca o inimigo: o próximo ataque que acertar causa dano adicional.",
+        cost: 16,
+        multiplier: 0.95,
+        effect: "expose",
+        effectName: "Ponto vulnerável",
+        masteryText: "Maestria aumenta dano e precisão das técnicas."
+      },
+      shadows: {
+        id: "shadows",
+        name: "Técnica das Dez Sombras",
+        kanji: "影",
+        category: "Versatilidade",
+        description: "Usa sombras para pressionar o inimigo e proteger o feiticeiro por um turno.",
+        principle: "O ataque também cria uma proteção para reduzir o próximo golpe recebido.",
+        cost: 22,
+        multiplier: 1.15,
+        effect: "ward",
+        effectName: "Proteção das sombras",
+        masteryText: "Maestria reforça o ataque e a proteção concedida."
+      }
+    },
+    attributes: [
+      { id: "strength", name: "Força", short: "FOR", icon: "拳", description: "Aumenta o dano dos ataques físicos." },
+      { id: "vitality", name: "Vitalidade", short: "VIT", icon: "盾", description: "Aumenta a vida máxima e a resistência." },
+      { id: "control", name: "Controle", short: "CTL", icon: "呪", description: "Aumenta energia amaldiçoada, potência técnica e chance de Black Flash." },
+      { id: "instinct", name: "Instinto", short: "INS", icon: "眼", description: "Melhora acertos físicos e testes de esquiva." }
+    ],
+    dialogues: {
+      briefing: {
+        chapter: "CAPÍTULO 01 · KUROHAMA",
+        speaker: "Aki Morino",
+        role: "Supervisora de campo",
+        portrait: "AM",
+        lines: [
+          "A barreira na estação de Kurohama oscila a cada três minutos. A equipe de apoio perdeu contato com dois passageiros e com o vigia do túnel leste.",
+          "Não sabemos se a presença lá dentro está atraindo pessoas ou se reage ao medo delas. Você vai entrar como apoio de primeiro grau supervisionado — nada de agir sem pensar.",
+          "Antes de cruzarmos o véu, preciso saber o que vem primeiro para você."
+        ],
+        choices: [
+          {
+            id: "protect",
+            label: "Priorizar os civis",
+            description: "Resgatar os passageiros antes de investigar. Você recebe um recurso extra e fortalece a confiança da equipe.",
+            response: "Boa. Uma missão cumprida com sobreviventes ainda é uma missão cumprida. Pegue mais uma poção; vou manter a saída aberta.",
+            effects: { trust: 2, potions: 1, openingChoice: "protect" }
+          },
+          {
+            id: "analyze",
+            label: "Entender a barreira",
+            description: "Perguntar sobre os resíduos e entrar com uma hipótese. Ganhe pista e energia para a investigação.",
+            response: "Os resíduos se acumulam nos intervalos da barreira. Registre qualquer mudança: talvez a própria estrutura revele quem a montou.",
+            effects: { clues: 1, ce: 16, openingChoice: "analyze" }
+          },
+          {
+            id: "advance",
+            label: "Pedir autorização para avançar",
+            description: "Assumir o risco de enfrentar a ameaça rapidamente. Receba experiência inicial, mas sem recursos extras.",
+            response: "Autorização concedida. Não confunda coragem com invulnerabilidade — leia o adversário antes de comprometer sua energia.",
+            effects: { xp: 18, openingChoice: "advance" }
+          }
+        ]
+      },
+      aftermath: {
+        chapter: "CAPÍTULO 01 · CONSEQUÊNCIAS",
+        speaker: "Aki Morino",
+        role: "Supervisora de campo",
+        portrait: "AM",
+        lines: [
+          "A maldição foi exorcizada, mas o foco da barreira não se desfez. O resíduo tem uma estrutura deliberada — alguém pode ter usado a estação como teste.",
+          "A direção quer que eu sele o local imediatamente. Eu quero preservar uma amostra, mesmo que isso nos obrigue a voltar quando a barreira estiver mais instável.",
+          "A decisão fica registrada no relatório. Ela vai definir a pista que seguiremos."
+        ],
+        choices: [
+          {
+            id: "seal",
+            label: "Selar a ruptura agora",
+            description: "Reduzir o risco imediato. Ganha um talismã e confiança adicional.",
+            response: "A equipe selou a ruptura antes do amanhecer. Não vamos colocar mais vidas em risco por uma resposta que ainda não sabemos interpretar.",
+            effects: { trust: 2, seals: 1, endingChoice: "seal" }
+          },
+          {
+            id: "research",
+            label: "Preservar o resíduo para análise",
+            description: "Ganhar uma pista importante e recuperar energia, aceitando um risco futuro.",
+            response: "A amostra foi preservada em contenção. Há um segundo padrão escondido nela — alguém sabia exatamente como a barreira reagiria.",
+            effects: { clues: 2, ce: 20, endingChoice: "research" }
+          }
+        ]
       }
     },
     enemies: {
@@ -54,79 +132,64 @@
         name: "Maldição do Eco",
         grade: "Grau 3",
         symbol: "響",
-        color: "rose",
-        hp: 82,
-        attack: 10,
-        defense: 2,
-        xp: 55,
-        ce: 13,
-        description: "Uma maldição nascida do medo de ouvir passos atrás de si. Ela copia o ritmo do adversário e tenta atacar quando a guarda baixa."
+        hp: 118,
+        attack: 15,
+        defense: 3,
+        evasion: 12,
+        stability: 13,
+        xp: 76,
+        ce: 16,
+        gold: 12,
+        intentWeights: [50, 32, 18],
+        description: "Nascida do medo de ouvir passos atrás de si. A maldição repete padrões e castiga quem insiste no mesmo movimento."
       },
       devourer: {
         id: "devourer",
         name: "Devorador de Resíduos",
         grade: "Grau 2",
         symbol: "喰",
-        color: "violet",
-        hp: 132,
-        attack: 14,
-        defense: 4,
-        xp: 90,
-        ce: 19,
-        description: "Uma maldição que se alimenta de resíduos de energia amaldiçoada. Seus ataques são lentos, mas punem quem fica parado."
+        hp: 196,
+        attack: 20,
+        defense: 5,
+        evasion: 13,
+        stability: 15,
+        xp: 125,
+        ce: 22,
+        gold: 24,
+        intentWeights: [38, 42, 20],
+        description: "Uma maldição que se alimenta de energia residual. Quando se prepara para um golpe pesado, abre uma janela curta para defesa ou esquiva."
       },
       sentinel: {
         id: "sentinel",
         name: "Sentinela do Véu",
         grade: "Grau 1",
         symbol: "封",
-        color: "gold",
-        hp: 205,
-        attack: 19,
-        defense: 6,
-        xp: 155,
-        ce: 26,
-        description: "Um guardião criado por um véu instável. Seus golpes exigem leitura de movimento e uma janela de resposta bem calculada."
+        hp: 290,
+        attack: 26,
+        defense: 7,
+        evasion: 14,
+        stability: 17,
+        xp: 210,
+        ce: 30,
+        gold: 42,
+        intentWeights: [30, 50, 20],
+        description: "Um guardião preso a uma barreira antiga. Aguenta pressão, prepara ataques fortes e pune o uso descuidado de energia."
       }
+    },
+    intents: {
+      strike: { name: "Golpe direto", description: "Um ataque rápido. Defesa e esquiva podem reduzir ou evitar o dano.", icon: "⚔" },
+      heavy: { name: "Ataque pesado", description: "Um golpe lento e perigoso, anunciado com antecedência. Esquivar é arriscado, mas pode evitar tudo.", icon: "‼" },
+      charge: { name: "Acumulando energia", description: "O inimigo se fortalece e prepara um ataque mais perigoso na próxima oportunidade.", icon: "✧" }
     },
     story: {
       openingTitle: "Incidente de Kurohama",
-      openingKicker: "Capítulo 01 · Uma ruptura na barreira",
-      opening: "Uma barreira irregular surgiu em uma estação subterrânea de Kurohama. A comunicação com a equipe de apoio falhou e relatos de uma presença hostil continuam chegando. Você é um estudante enviado para investigar — sua primeira decisão pode mudar quem confiará em você.",
-      choices: [
-        {
-          id: "rescue",
-          title: "Resgatar os civis primeiro",
-          description: "Priorize as pessoas presas. Você ganhará aliados, mas a maldição terá tempo para se preparar.",
-          outcome: "Você guiou os últimos passageiros até uma saída lateral. Uma testemunha entregou um amuleto de proteção improvisado.",
-          xp: 20,
-          hp: 12
-        },
-        {
-          id: "trace",
-          title: "Seguir os resíduos amaldiçoados",
-          description: "Rastreie a origem da barreira. Você chega ao inimigo com uma leitura melhor de seu padrão.",
-          outcome: "Você seguiu os resíduos pelo túnel e encontrou o foco da anomalia. Seu estudo revelou o ritmo de ataque da maldição.",
-          xp: 15,
-          ce: 12
-        }
-      ],
-      endings: [
-        {
-          id: "seal",
-          title: "Selar a ruptura",
-          description: "Estabilize a barreira para proteger a estação. Um final mais seguro, mas algumas perguntas continuarão abertas.",
-          outcome: "Você estabilizou a barreira. Kurohama ficou segura por enquanto, mas os resíduos indicam que alguém provocou a ruptura."
-        },
-        {
-          id: "research",
-          title: "Investigar a origem",
-          description: "Preserve o foco da anomalia para análise. Você obterá uma pista para a próxima rota, assumindo um risco maior.",
-          outcome: "Você preservou o foco da anomalia para estudo. A decisão abriu uma pista nova — e fez uma presença distante notar seu nome."
-        }
-      ]
+      sideMissions: {
+        echo: { title: "Eco no túnel leste", detail: "Treino de exorcismo: a Maldição do Eco reaparece em um resíduo instável." },
+        devourer: { title: "Resíduos Persistentes", detail: "O Devorador de Resíduos está consumindo vestígios da barreira de Kurohama." },
+        sentinel: { title: "O Véu Fraturado", detail: "A Sentinela protege uma estrutura de Grau 1. Uma luta que exige leitura de intenções." }
+      }
     },
-    ranks: [
+    grades: [
       { level: 1, name: "Grau 4" },
       { level: 3, name: "Grau 3" },
       { level: 5, name: "Grau 2" },
@@ -135,4 +198,4 @@
       { level: 16, name: "Grau Especial" }
     ]
   };
-})(window);
+})(typeof window !== "undefined" ? window : globalThis);
