@@ -175,6 +175,74 @@ test("rebirth resets level while preserving technique mastery, route, and legacy
   assert.equal(result.state.player.hp, result.state.player.maxHp);
 });
 
+test("the XP curve reaches level 3 without the old 1.32 jump", () => {
+  const state = Core.createState("ratio");
+  assert.equal(state.player.nextXp, 100);
+  Core.gainXP(state, 100);
+  assert.equal(state.player.level, 2);
+  assert.equal(state.player.nextXp, 118);
+  Core.gainXP(state, 118);
+  assert.equal(state.player.level, 3);
+});
+
+test("flow memory training awards first-clear XP and reduced replay XP", () => {
+  const state = Core.createState("ratio");
+  assert.equal(Core.startTraining(state, "flow").ok, true);
+  const pattern = DATA.training.flow.patterns[state.training.patternIndex];
+  assert.equal(Core.applyTrainingChoice(state, "start").ok, true);
+  let result;
+  for (const step of pattern) result = Core.applyTrainingChoice(state, step);
+  assert.equal(result.finished, true);
+  assert.equal(state.training.result.score, 4);
+  assert.equal(state.training.result.xp, 98);
+  assert.equal(state.story.trainingCompleted.flow, true);
+  state.training = null; state.view = "mission";
+  Core.startTraining(state, "flow");
+  Core.applyTrainingChoice(state, "start");
+  for (const step of DATA.training.flow.patterns[state.training.patternIndex]) result = Core.applyTrainingChoice(state, step);
+  assert.equal(state.training.result.xp, 14);
+});
+
+test("reflex mini-game evaluates tactical choices in all three scenarios", () => {
+  const state = Core.createState("shadows");
+  Core.startTraining(state, "reflex");
+  let result;
+  for (const answer of DATA.training.reflex.scenarios.map(item => item.correct)) result = Core.applyTrainingChoice(state, answer);
+  assert.equal(result.finished, true);
+  assert.equal(state.training.result.score, 3);
+  assert.equal(state.story.trainingCompleted.reflex, true);
+});
+
+test("barrier investigation cannot start before chapter one", () => {
+  const state = Core.createState("blood");
+  assert.equal(Core.startCombat(state, "devourer").ok, false);
+  assert.equal(Core.startTraining(state, "investigation").ok, false);
+  assert.equal(state.story.investigationComplete, false);
+});
+
+test("successful barrier investigation unlocks the second operation and adds clues", () => {
+  const state = Core.createState("blood");
+  state.story.chapterOneComplete = true; state.view = "mission";
+  Core.startTraining(state, "investigation");
+  let result;
+  for (const question of DATA.training.investigation.questions) result = Core.applyTrainingChoice(state, question.choices.find(option => option.correct).id);
+  assert.equal(result.finished, true);
+  assert.equal(state.story.investigationComplete, true);
+  assert.equal(state.story.clues, 3);
+  state.training = null; state.view = "mission";
+  assert.equal(Core.startCombat(state, "devourer").ok, true);
+});
+
+test("the rebalance reduces first-enemy HP and softens level scaling", () => {
+  const echo = Core.enemyFor("echo", 1, 0, 0);
+  const leveled = Core.enemyFor("echo", 6, 2, 0);
+  const devourer = Core.enemyFor("devourer", 1, 0, 0);
+  assert.equal(echo.maxHp, 70);
+  assert.ok(leveled.maxHp > echo.maxHp);
+  assert.ok(leveled.maxHp < echo.maxHp * 1.4);
+  assert.ok(devourer.maxHp > echo.maxHp);
+});
+
 test("technique catalogue has a cost, effect, and descriptive identity for each choice", () => {
   Object.values(DATA.techniques).forEach(technique => {
     assert.ok(technique.name);
