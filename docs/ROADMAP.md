@@ -61,7 +61,15 @@ A análise original está em [MEGA-UPDATE-PREPARATION.md](MEGA-UPDATE-PREPARATIO
 - [x] Reestilização global da interface e feedback específico de combate.
 - [x] Testes automáticos de talismã, contra-ataque, fase de chefe e contratos.
 
-## Próxima prioridade: versão 0.5 — Variedade de missões, equipamento e finais
+## Versão 0.5 — Mega rework de especializações (implementada)
+
+- [x] Quatro especializações passivas escolhidas na criação do personagem.
+- [x] Efeitos derivados centralizados no núcleo para ataque, energia, potência técnica, vida e defesa.
+- [x] Especialização aparece na ficha e é preservada no rebirth.
+- [x] Saves da versão anterior migram automaticamente para a especialização Versátil.
+- [x] Teste comparativo de bônus e preservação de caminho no rebirth.
+
+## Próxima prioridade: versão 0.6 — Variedade de missões, equipamento e finais
 
 1. Separar intenção, rolagens e aplicação de efeitos em uma máquina de estados completamente determinística.
 2. Acrescentar animações curtas, hit-stop e feedback visual para erro, crítico, Black Flash, guarda perfeita, esquiva e efeito de técnica.
