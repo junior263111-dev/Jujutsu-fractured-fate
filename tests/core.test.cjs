@@ -296,6 +296,21 @@ test("contracts can be claimed once and pay their published rewards", () => {
 });
 
 
+test("character specializations change derived stats and survive rebirth", () => {
+  const balanced = Core.createState("ratio", "A", "balanced");
+  const vanguard = Core.createState("ratio", "B", "vanguard");
+  const conduit = Core.createState("ratio", "C", "conduit");
+  const guardian = Core.createState("ratio", "D", "guardian");
+  assert.equal(vanguard.player.attackPower, balanced.player.attackPower + 2);
+  assert.equal(conduit.player.maxCe, balanced.player.maxCe + 15);
+  assert.equal(conduit.player.techniquePower, balanced.player.techniquePower + 2);
+  assert.equal(guardian.player.maxHp, balanced.player.maxHp + 18);
+  assert.equal(guardian.player.defense, balanced.player.defense + 1);
+  guardian.player.level = 8; guardian.player.wins = 5;
+  const reborn = Core.rebirth(guardian);
+  assert.equal(reborn.state.player.pathId, "guardian");
+});
+
 test("technique catalogue has a cost, effect, and descriptive identity for each choice", () => {
   Object.values(DATA.techniques).forEach(technique => {
     assert.ok(technique.name);
