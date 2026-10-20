@@ -1,0 +1,26 @@
+name: Test RPG core
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/data.js
+          node --check src/core.js
+          node --check src/app.js
+          node --check tests/core.test.cjs
+      - name: Run core tests
+        run: node --test tests/core.test.cjs
