@@ -39,6 +39,10 @@ RPG single-player de navegador inspirado no universo de Jujutsu Kaisen, com comb
 - [x] Workflow do GitHub Actions para validar sintaxe e executar testes.
 - [x] Layout responsivo e controles de teclado, mouse e toque.
 
+## Preparação obrigatória antes da versão 0.3
+
+A auditoria específica está em [MEGA-UPDATE-PREPARATION.md](MEGA-UPDATE-PREPARATION.md). Primeiro analisar o desequilíbrio inicial e definir métricas com simulações; só depois alterar as regras. O plano de preparação é o ponto de partida da próxima sessão, sem mudanças de gameplay nesta etapa.
+
 ## Próxima prioridade: versão 0.3 — Combate mais profundo
 
 1. Separar intenção, rolagens e aplicação de efeitos em uma máquina de estados completamente determinística.
