@@ -22,6 +22,7 @@
     parsed.story.chapterThreeComplete = !!parsed.story.chapterThreeComplete;
     parsed.story.chapterTwoChoice = parsed.story.chapterTwoChoice || null;
     parsed.story.chapterThreeChoice = parsed.story.chapterThreeChoice || null;
+    parsed.story.contractsClaimed = parsed.story.contractsClaimed || {};
     parsed.training = null;
     if (parsed.view === "training") parsed.view = "mission";
     return parsed;
@@ -206,6 +207,13 @@
       options += makeMissionButton("Resíduos Persistentes", s.investigationComplete ? "Capítulo 02: enfrente o Devorador e descubra o que está drenando a barreira." : "Bloqueado: conclua primeiro a Perícia da Barreira.", "mission:devourer", !s.investigationComplete, s.chapterTwoComplete ? "CAPÍTULO 02 · REPLAY" : "GRAU 2 · HISTÓRIA");
       options += makeMissionButton("O Véu Fraturado", s.chapterTwoComplete ? (state.player.level >= 5 ? "Capítulo 03: enfrente a Sentinela que protege o núcleo." : "Requer nível 5. Treine ou conclua missões para ganhar XP.") : "Bloqueado até concluir a operação do túnel leste.", "mission:sentinel", !s.chapterTwoComplete || state.player.level < 5, s.chapterThreeComplete ? "CAPÍTULO 03 · REPLAY" : "GRAU 1");
     }
+    $("contract-options").innerHTML = DATA.contracts.map(function (contract) {
+      var claimed = !!s.contractsClaimed[contract.id];
+      var ready = CORE.contractReady(state, contract.id);
+      var reward = contract.reward;
+      var rewardText = "+" + reward.xp + " XP · +" + reward.gold + " ouro" + (reward.seals ? " · +" + reward.seals + " talismã(s)" : "");
+      return '<article class="contract-card' + (claimed ? " contract-claimed" : ready ? " contract-ready" : "") + '"><div class="contract-main"><span class="contract-status">' + (claimed ? "CONCLUÍDO" : ready ? "OBJETIVO COMPLETO" : "EM ANDAMENTO") + '</span><strong>' + escapeHtml(contract.title) + '</strong><p>' + escapeHtml(contract.description) + '</p><small>' + escapeHtml(rewardText) + '</small></div><button class="button ' + (ready && !claimed ? "primary" : "subtle") + '" data-action="contract:claim:' + contract.id + '"' + (!ready || claimed ? " disabled" : "") + '>' + (claimed ? "Resgatado ✓" : ready ? "Resgatar" : "Pendente") + '</button></article>';
+    }).join("");
     options += makeMissionButton("Descansar na escola", "Gasta 8 de ouro para restaurar vida e energia amaldiçoada.", "rest", state.player.gold < 8 || (state.player.hp === state.player.maxHp && state.player.ce === state.player.maxCe), "RECUPERAÇÃO");
     options += makeMissionButton("Comprar uma poção", "Gasta 10 de ouro. Poções recuperam 42 pontos de vida durante o combate.", "buy-potion", state.player.gold < 10 || state.inventory.potions >= 9, "LOJA");
     $("mission-options").innerHTML = options;
@@ -245,7 +253,10 @@
         dodgeDetail + (enemyResult.dodged ? "Você evitou o ataque e recuperou energia amaldiçoada." : "O resultado do inimigo foi resolvido. Leia a próxima intenção."),
         "躱", enemyResult.dodged ? "positive" : "negative");
     } else if (action === "guard") {
-      setDiceDisplay("Guarda preparada", "Você reduziu o dano recebido nesta rodada. A intenção seguinte será sorteada depois do ataque inimigo.", "盾", "positive");
+      var guardResult = r.enemy || {};
+      setDiceDisplay(guardResult.counterDamage ? "Guarda perfeita · contra-ataque" : "Guarda preparada", guardResult.counterDamage ? "Você aparou o ataque pesado e devolveu " + guardResult.counterDamage + " de dano." : "Você reduziu o dano recebido nesta rodada.", "盾", "positive");
+    } else if (action === "seal") {
+      setDiceDisplay("Talismã de selamento", "A intenção " + (r.cancelledIntent || "inimiga") + " foi anulada. Você gastou um talismã e não recebeu o ataque.", "封", "positive");
     } else if (action === "meditate") {
       setDiceDisplay("Meditação", "Energia amaldiçoada recuperada. Meditar ainda consome um turno, então observe o ataque inimigo.", "息", "neutral");
     } else if (action === "potion") {
@@ -402,7 +413,7 @@
       $("domain-btn").disabled = true;
     }
     $("hint-text").textContent = p.level >= 8
-      ? "Expansão de Domínio disponível. Guarde 42 de energia e use quando o inimigo estiver numa situação em que a interrupção tenha valor."
+      ? "Expansão de Domínio disponível. Guarde 35 de energia e use quando o inimigo estiver numa situação em que a interrupção tenha valor."
       : "Observe a intenção inimiga: golpe direto, ataque pesado ou acumular energia. Pontos de Força, Vitalidade, Controle e Instinto mudam seus testes.";
     $("event-log").innerHTML = state.log.map(function (line) {
       return '<div class="event-row"><span class="event-dot"></span><span>' + escapeHtml(line) + '</span></div>';
@@ -432,7 +443,7 @@
     $("enemy-name").textContent = enemy.name;
     $("enemy-hp-text").textContent = enemy.hp + " / " + enemy.maxHp;
     $("enemy-hp-bar").style.width = CORE.hpPercent(enemy.hp, enemy.maxHp) + "%";
-    $("enemy-status").textContent = enemy.stunned ? "INTERROMPIDO" : enemy.exposed ? "VULNERÁVEL" : enemy.bleedTurns > 0 ? "SANGRANDO" : enemy.charged ? "ENERGIA ACUMULADA" : "ADVERSÁRIO ATIVO";
+    $("enemy-status").textContent = enemy.phase > 1 ? "FASE 2 · NÚCLEO ABERTO" : enemy.stunned ? "INTERROMPIDO" : enemy.exposed ? "VULNERÁVEL" : enemy.bleedTurns > 0 ? "SANGRANDO" : enemy.charged ? "ENERGIA ACUMULADA" : "ADVERSÁRIO ATIVO";
     $("round-label").textContent = "TURNO " + enemy.round;
     $("intent-icon").textContent = intent.icon;
     $("intent-title").textContent = intent.name;
@@ -443,6 +454,8 @@
     $("technique-button-cost").textContent = tech.cost + " energia · maestria " + state.player.techniqueRank;
     $("combat-feedback").textContent = enemy.stunned ? "O inimigo está interrompido: aproveite a rodada para uma ação segura." : enemy.exposed ? "O alvo está vulnerável; seu próximo acerto causa dano extra." : enemy.intent === "heavy" ? "O ataque pesado está anunciado. Defender ou esquivar pode evitar muito dano." : enemy.intent === "charge" ? "O inimigo está acumulando energia. Você pode atacar ou aproveitar para se preparar." : "Escolha sua ação; cada decisão encerra seu turno.";
     $("combat-feedback").className = "combat-feedback" + (enemy.stunned || enemy.exposed ? " positive" : enemy.intent === "heavy" ? " negative" : "");
+    $("seal-btn").disabled = state.inventory.seals <= 0;
+    $("seal-action-label").textContent = state.inventory.seals + " talismã(s) · cancela a intenção atual";
     $("domain-btn").disabled = state.player.level < 8 || state.player.ce < 35;
     $("domain-state").textContent = state.player.level < 8 ? "Desbloqueia no nível 8 · 35 energia" : state.player.ce < 35 ? "Energia insuficiente · precisa de 35" : "35 energia · dano forte e interrupção";
     $("potion-action-label").textContent = state.inventory.potions + " disponível(is) · cura 42";
@@ -538,6 +551,11 @@
     if (action === "rebirth") { performRebirth(); return; }
     if (action.indexOf("dialogue:") === 0) { if (state.view === "dialogue") applyDialogueChoice(action.slice(9)); return; }
     if (action.indexOf("skill:") === 0) { spendSkillPoint(action.slice(6)); return; }
+    if (action.indexOf("contract:claim:") === 0) {
+      var contractResult = CORE.claimContract(state, action.slice("contract:claim:".length));
+      if (!contractResult.ok) { toast(contractResult.message); return; }
+      toast("Contrato resgatado: +" + contractResult.reward.xp + " XP."); render(); persist(false); return;
+    }
     if (action === "mission:echo") { startCombat("echo"); return; }
     if (action === "mission:devourer") {
       if (!state.story.investigationComplete) { toast("Conclua a Perícia da Barreira primeiro."); return; }
@@ -562,7 +580,7 @@
     }
     if (action === "rest") { restAtSchool(); return; }
     if (action === "buy-potion") { buyPotion(); return; }
-    if (["physical","technique","guard","dodge","meditate","potion","domain"].indexOf(action) >= 0) {
+    if (["physical","technique","guard","dodge","meditate","potion","domain","seal"].indexOf(action) >= 0) {
       if (state.view === "combat") performCombatAction(action);
       return;
     }
@@ -584,7 +602,7 @@
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (event.target && /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
     var key = event.key.toLowerCase();
-    var mapping = { "1":"physical", "2":"technique", "3":"guard", "4":"dodge", "5":"meditate", "6":"potion", "7":"domain" };
+    var mapping = { "1":"physical", "2":"technique", "3":"guard", "4":"dodge", "5":"meditate", "6":"potion", "7":"domain", "8":"seal" };
     if (mapping[key]) { event.preventDefault(); dispatch(mapping[key]); }
   });
   window.addEventListener("beforeunload", function () { persist(false); });
