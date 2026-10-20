@@ -57,7 +57,8 @@
         chapterTwoComplete: false,
         chapterThreeComplete: false,
         chapterTwoChoice: null,
-        chapterThreeChoice: null
+        chapterThreeChoice: null,
+        contractsClaimed: {}
       },
       combat: null,
       training: null,
@@ -90,6 +91,7 @@
       xp: Math.round(base.xp * (1 + Math.min(4, Math.max(0, level - 1)) * 0.035)),
       ceReward: base.ce, gold: base.gold, description: base.description,
       intentWeights: base.intentWeights.slice(), intent: "strike",
+      phase: 1, phaseAt: base.phaseAt || 0.5, phaseAttackBonus: base.phaseAttackBonus || 0, phaseShifted: false,
       stunned: false, exposed: false, bleedTurns: 0, bleeds: 0, charged: false, warded: false
     };
   }
@@ -330,8 +332,13 @@
       if (enemyRoll === 20) rawDamage = Math.round(rawDamage * 1.4);
       var damage = Math.max(1, rawDamage);
       if (action === "guard") {
-        damage = Math.max(1, Math.round(damage * 0.4));
+        damage = Math.max(1, Math.round(damage * (isHeavy ? 0.25 : 0.4)));
         result.guarded = true;
+        if (isHeavy && enemy.hp > 0) {
+          result.counterDamage = Math.max(2, Math.round(p.attackPower * 0.75));
+          enemy.hp = clamp(enemy.hp - result.counterDamage, 0, enemy.maxHp);
+          state.log.unshift("Contra-ataque de guarda perfeita: " + result.counterDamage + " de dano após aparar o golpe pesado.");
+        }
       }
       if (p.warded) {
         damage = Math.max(1, Math.round(damage * 0.5));
@@ -396,6 +403,18 @@
     return state.lastResult;
   }
 
+  function triggerPhaseChange(state) {
+    var enemy = state && state.combat;
+    if (!enemy || enemy.id !== "sentinel" || enemy.phaseShifted || enemy.hp <= 0 || enemy.hp > enemy.maxHp * enemy.phaseAt) return false;
+    enemy.phaseShifted = true;
+    enemy.phase = 2;
+    enemy.attack += enemy.phaseAttackBonus;
+    enemy.evasion = Math.max(8, enemy.evasion - 1);
+    enemy.stunned = true;
+    state.log.unshift("FASE 2 — A Sentinela rompe o primeiro selo. O núcleo está exposto, mas os ataques ficaram mais agressivos; ela perde este turno na transição.");
+    return true;
+  }
+
   function takeTurn(state, action, rng) {
     if (!state.combat || state.view !== "combat") return { ok: false, message: "Não há combate ativo." };
     var result, technique, before = state.log.length;
@@ -407,6 +426,12 @@
       result = technique.result;
     } else if (action === "guard" || action === "dodge") {
       result = { action: action };
+    } else if (action === "seal") {
+      if (state.inventory.seals <= 0) return { ok: false, message: "Você não tem talismãs de selamento." };
+      state.inventory.seals -= 1;
+      state.combat.stunned = true;
+      result = { action: action, cancelledIntent: state.combat.intent };
+      state.log.unshift("Talismã de selamento: a intenção " + DATA.intents[state.combat.intent].name.toLowerCase() + " foi anulada. O talismã se desfez.");
     } else if (action === "meditate") {
       var restore = 20 + state.player.attributes.control * 4;
       var oldCe = state.player.ce;
@@ -435,6 +460,7 @@
       return { ok: false, message: "Ação de combate desconhecida." };
     }
 
+    if (state.combat) triggerPhaseChange(state);
     if (state.combat && state.combat.hp <= 0) {
       winCombat(state, result);
       return { ok: true, result: result, outcome: "victory", logAdded: state.log.length - before };
@@ -549,6 +575,35 @@
     return { ok: true, correct: correctChoice, message: game.feedback };
   }
 
+  function contractReady(state, contractId) {
+    if (!state || !state.story) return false;
+    var story = state.story;
+    var rewards = story.missionRewards || {};
+    var training = story.trainingCompleted || {};
+    if (contractId === "training_pair") return !!training.flow && !!training.reflex;
+    if (contractId === "first_exorcism") return (state.player.wins || 0) >= 1;
+    if (contractId === "barrier_report") return !!story.investigationComplete && (story.clues || 0) >= 3;
+    if (contractId === "three_targets") return !!rewards.echo && !!rewards.devourer && !!rewards.sentinel;
+    return false;
+  }
+
+  function claimContract(state, contractId) {
+    if (!state || state.combat || state.view === "combat") return { ok: false, message: "Contratos só podem ser resgatados fora do combate." };
+    var contract = DATA.contracts.filter(function (item) { return item.id === contractId; })[0];
+    if (!contract) return { ok: false, message: "Contrato desconhecido." };
+    state.story.contractsClaimed = state.story.contractsClaimed || {};
+    if (state.story.contractsClaimed[contractId]) return { ok: false, message: "Esse contrato já foi resgatado." };
+    if (!contractReady(state, contractId)) return { ok: false, message: "Objetivo ainda não concluído." };
+    var reward = contract.reward;
+    state.story.contractsClaimed[contractId] = true;
+    state.player.gold += reward.gold || 0;
+    state.inventory.seals += reward.seals || 0;
+    var levels = gainXP(state, reward.xp || 0);
+    state.log.unshift("Contrato concluído: " + contract.title + " · +" + (reward.xp || 0) + " XP, +" + (reward.gold || 0) + " ouro, +" + (reward.seals || 0) + " talismã(s).");
+    state.log = state.log.slice(0, 10);
+    return { ok: true, contract: contract, reward: reward, levels: levels };
+  }
+
   function canRebirth(state) {
     return state.player.level >= 8 && state.player.wins >= 5 && !state.combat;
   }
@@ -583,6 +638,7 @@
     rankForLevel: rankForLevel, enemyFor: enemyFor, chooseIntent: chooseIntent, startCombat: startCombat,
     gainXP: gainXP, spendSkillPoint: spendSkillPoint, applyDialogueChoice: applyDialogueChoice,
     startTraining: startTraining, applyTrainingChoice: applyTrainingChoice, finishTraining: finishTraining,
+    triggerPhaseChange: triggerPhaseChange, contractReady: contractReady, claimContract: claimContract,
     rollPhysical: rollPhysical, rollTechnique: rollTechnique, resolveEnemyTurn: resolveEnemyTurn,
     winCombat: winCombat, takeTurn: takeTurn, canRebirth: canRebirth, rebirth: rebirth,
     hpPercent: hpPercent, xpPercent: xpPercent, cePercent: cePercent, copy: copy
