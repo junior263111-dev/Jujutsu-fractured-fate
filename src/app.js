@@ -14,6 +14,18 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
+  function normalizeState(parsed) {
+    parsed.story.trainingCompleted = parsed.story.trainingCompleted || {};
+    parsed.story.missionRewards = parsed.story.missionRewards || {};
+    parsed.story.investigationComplete = !!parsed.story.investigationComplete;
+    parsed.story.chapterTwoComplete = !!parsed.story.chapterTwoComplete;
+    parsed.story.chapterThreeComplete = !!parsed.story.chapterThreeComplete;
+    parsed.story.chapterTwoChoice = parsed.story.chapterTwoChoice || null;
+    parsed.story.chapterThreeChoice = parsed.story.chapterThreeChoice || null;
+    parsed.training = null;
+    if (parsed.view === "training") parsed.view = "mission";
+    return parsed;
+  }
   function safeLoad() {
     try {
       var raw = localStorage.getItem(SAVE_KEY);
@@ -21,7 +33,7 @@
       var parsed = JSON.parse(raw);
       if (!parsed || parsed.schema !== 2 || !parsed.player || !parsed.story || !DATA.techniques[parsed.techniqueId]) return null;
       if (!parsed.player.attributes || !parsed.inventory || !Array.isArray(parsed.log)) return null;
-      return parsed;
+      return normalizeState(parsed);
     } catch (err) { return null; }
   }
   function persist(showMessage) {
@@ -142,17 +154,18 @@
       render();
       return;
     }
+    var isBriefing = state.story.dialogueNode === "briefing";
     $("chapter-label").textContent = node.chapter;
-    $("screen-title").textContent = state.story.dialogueNode === "briefing" ? "Incidente de Kurohama" : "Consequências do exorcismo";
+    $("screen-title").textContent = node.title || (isBriefing ? "Incidente de Kurohama" : "Relatório de campo");
     $("scene-kicker").textContent = "DIÁLOGO · DECISÃO PERSISTENTE";
-    $("scene-title").textContent = state.story.dialogueNode === "briefing" ? "A barreira de Kurohama" : "O que fazer com o resíduo?";
-    $("scene-description").textContent = state.story.dialogueNode === "briefing"
+    $("scene-title").textContent = node.sceneTitle || (isBriefing ? "A barreira de Kurohama" : "O que fazer agora?");
+    $("scene-description").textContent = node.sceneDescription || (isBriefing
       ? "Sua equipe está prestes a cruzar um véu instável. A supervisora espera uma resposta."
-      : "A primeira maldição foi exorcizada; agora é preciso decidir o destino da amostra.";
-    $("scene-location").textContent = "ESTAÇÃO DE KUROHAMA";
-    $("scene-condition").textContent = state.story.dialogueNode === "briefing" ? "BRIEFING ATIVO" : "RELATÓRIO PENDENTE";
-    $("dialogue-heading").textContent = state.story.dialogueNode === "briefing" ? "Briefing de campo" : "Relatório de consequências";
-    $("dialogue-chip").textContent = state.story.dialogueNode === "briefing" ? "ANTES DA MISSÃO" : "PÓS-EXORCISMO";
+      : "O relatório registra o resultado da operação e define o próximo passo.");
+    $("scene-location").textContent = node.sceneLocation || "ESTAÇÃO DE KUROHAMA";
+    $("scene-condition").textContent = node.sceneCondition || (isBriefing ? "BRIEFING ATIVO" : "RELATÓRIO PENDENTE");
+    $("dialogue-heading").textContent = node.title || (isBriefing ? "Briefing de campo" : "Relatório de consequências");
+    $("dialogue-chip").textContent = node.chip || (isBriefing ? "ANTES DA MISSÃO" : "DECISÃO PERSISTENTE");
     $("dialogue-lines").innerHTML = node.lines.map(function (line, index) {
       return '<div class="dialogue-bubble"><div class="dialogue-portrait">' + escapeHtml(index === 1 && state.story.dialogueNode === "briefing" ? "??" : node.portrait) + '</div>' +
         '<div><div class="dialogue-speaker"><strong>' + escapeHtml(index === 1 && state.story.dialogueNode === "briefing" ? "Transmissão no rádio" : node.speaker) + '</strong><span>' +
@@ -161,30 +174,40 @@
     $("dialogue-options").innerHTML = node.choices.map(makeChoiceButton).join("");
   }
   function renderMission() {
-    $("chapter-label").textContent = "CAMPANHA · ROTA ATUAL";
-    $("screen-title").textContent = state.story.chapterOneComplete ? "Centro de operações" : "Preparação da missão";
+    var s = state.story;
+    $("chapter-label").textContent = !s.chapterOneComplete ? "CAPÍTULO 01 · KUROHAMA" : !s.investigationComplete ? "CAPÍTULO 02 · INVESTIGAÇÃO" : !s.chapterTwoComplete ? "CAPÍTULO 02 · TÚNEL LESTE" : !s.chapterThreeComplete ? "CAPÍTULO 03 · O VÉU FRATURADO" : "CAMPANHA · INTERVALO OPERACIONAL";
+    $("screen-title").textContent = !s.chapterOneComplete ? "Preparação da missão" : !s.investigationComplete ? "Análise da barreira" : !s.chapterTwoComplete ? "Rastros no túnel leste" : !s.chapterThreeComplete ? "A câmara do véu" : "Centro de operações";
     $("scene-kicker").textContent = "CENTRO DE OPERAÇÕES · TÓQUIO";
-    $("scene-title").textContent = state.story.chapterOneComplete ? "Os resíduos persistem" : "Antes de cruzar o véu";
-    $("scene-description").textContent = state.story.chapterOneComplete
-      ? "A ruptura foi contida, mas os resíduos indicam que alguém pode ter provocado o incidente. Treine, prepare recursos e continue investigando."
-      : "A supervisora aguarda sua resposta. A primeira incursão será contra a Maldição do Eco, cuja intenção muda de turno para turno.";
-    $("scene-location").textContent = "CENTRO DE OPERAÇÕES";
-    $("scene-condition").textContent = state.story.chapterOneComplete ? "NOVA ROTA DISPONÍVEL" : "MISSÃO PREPARADA";
-    $("mission-heading").textContent = state.story.chapterOneComplete ? "Selecione uma operação" : "Pronto para entrar?";
-    $("mission-chip").textContent = "MISSÕES";
-    $("mission-text").textContent = state.story.chapterOneComplete
-      ? "Cada missão oferece XP, ouro e energia. As ameaças escalam com seu nível e histórico de exorcismos; invista pontos de habilidade antes de entrar."
-      : "A Maldição do Eco está no túnel leste. A intenção inimiga será exibida antes de cada rodada. Não existe combo automático: você decide quando atacar, defender, esquivar ou recuperar energia.";
+    $("scene-title").textContent = !s.chapterOneComplete ? "Antes de cruzar o véu" : !s.investigationComplete ? "Uma pista verificável" : !s.chapterTwoComplete ? "A fonte do resíduo" : !s.chapterThreeComplete ? "O guardião do núcleo" : "A investigação continua";
+    $("scene-description").textContent = !s.chapterOneComplete
+      ? "A supervisora Aki Morino aguarda sua resposta. Treino opcional pode melhorar sua energia e dar XP antes do primeiro exorcismo."
+      : !s.investigationComplete
+        ? "O primeiro exorcismo terminou, mas a barreira continuou ativa. Cruze as evidências encontradas em campo para liberar a operação do túnel leste."
+        : !s.chapterTwoComplete
+          ? "O Devorador de Resíduos está drenando a energia residual. A investigação revelou o caminho, mas o confronto ainda exige leitura de intenções."
+          : !s.chapterThreeComplete
+            ? "A Sentinela protege o núcleo da barreira. Prepare sua ficha, complete os treinos e entre apenas quando atingir o nível 5."
+            : "A operação foi concluída, mas os relatórios apontam uma assinatura de energia ainda sem identificação. Treine, faça missões secundárias e fortaleça sua ficha.";
+    $("scene-location").textContent = !s.chapterOneComplete ? "ESTAÇÃO DE KUROHAMA" : !s.investigationComplete ? "SALA DE ANÁLISE" : !s.chapterTwoComplete ? "TÚNEL LESTE" : !s.chapterThreeComplete ? "CÂMARA DO VÉU" : "CENTRO DE OPERAÇÕES";
+    $("scene-condition").textContent = !s.chapterOneComplete ? "MISSÃO PREPARADA" : !s.investigationComplete ? "PERÍCIA PENDENTE" : !s.chapterTwoComplete ? "OPERAÇÃO LIBERADA" : !s.chapterThreeComplete ? "GRAU 1 · RISCO ALTO" : "CAPÍTULO 03 CONCLUÍDO";
+    $("mission-heading").textContent = s.chapterThreeComplete ? "Escolha como continuar" : "Selecione o próximo passo";
+    $("mission-chip").textContent = "CAMPANHA + TREINO";
+    $("mission-text").textContent = "Missões principais concedem bônus de XP na primeira conclusão. Treinos podem ser repetidos para praticar, mas a maior recompensa é recebida uma vez por exercício.";
     var options = "";
-    if (!state.story.chapterOneComplete) {
-      options += makeMissionButton("Entrar na estação", "Enfrente a Maldição do Eco para concluir a primeira missão e abrir o relatório.", "mission:echo", false, "MISSÃO PRINCIPAL");
+    options += makeMissionButton("Controle do Fluxo", DATA.training.flow.description + (s.trainingCompleted.flow ? " Repetição dá XP menor." : " Primeira conclusão dá XP, ouro e energia."), "training:flow", false, s.trainingCompleted.flow ? "TREINO · CONCLUÍDO" : "MINIGAME · ENERGIA");
+    options += makeMissionButton("Reflexos de Campo", DATA.training.reflex.description + (s.trainingCompleted.reflex ? " Repetição dá XP menor." : " Primeira conclusão dá XP e ouro."), "training:reflex", false, s.trainingCompleted.reflex ? "TREINO · CONCLUÍDO" : "MINIGAME · COMBATE");
+    if (s.chapterOneComplete) {
+      options += makeMissionButton("Perícia da Barreira", DATA.training.investigation.description + (s.investigationComplete ? " Refaça para praticar; a recompensa principal já foi recebida." : " Complete a análise para desbloquear o túnel leste."), "training:investigation", false, s.investigationComplete ? "INVESTIGAÇÃO · REPLAY" : "HISTÓRIA · OBJETIVO");
+    }
+    if (!s.chapterOneComplete) {
+      options += makeMissionButton("Entrar na estação", "Missão principal: exorcize a Maldição do Eco e abra o relatório de Kurohama.", "mission:echo", false, "CAPÍTULO 01");
     } else {
-      options += makeMissionButton("Treino de exorcismo", "Enfrente uma Maldição do Eco cuja força escala com seu progresso.", "mission:echo", false, "REPETÍVEL");
-      options += makeMissionButton("Resíduos Persistentes", "Enfrente o Devorador de Resíduos. A missão recompensa mais XP e ouro.", "mission:devourer", state.player.wins < 1, "GRAU 2");
-      options += makeMissionButton("O Véu Fraturado", "Enfrente a Sentinela do Véu. Requer nível 5.", "mission:sentinel", state.player.level < 5, "GRAU 1");
+      options += makeMissionButton("Treino de exorcismo", "Reencontre a Maldição do Eco. XP menor por repetição, útil para praticar uma build nova.", "mission:echo", false, "REPETÍVEL");
+      options += makeMissionButton("Resíduos Persistentes", s.investigationComplete ? "Capítulo 02: enfrente o Devorador e descubra o que está drenando a barreira." : "Bloqueado: conclua primeiro a Perícia da Barreira.", "mission:devourer", !s.investigationComplete, s.chapterTwoComplete ? "CAPÍTULO 02 · REPLAY" : "GRAU 2 · HISTÓRIA");
+      options += makeMissionButton("O Véu Fraturado", s.chapterTwoComplete ? (state.player.level >= 5 ? "Capítulo 03: enfrente a Sentinela que protege o núcleo." : "Requer nível 5. Treine ou conclua missões para ganhar XP.") : "Bloqueado até concluir a operação do túnel leste.", "mission:sentinel", !s.chapterTwoComplete || state.player.level < 5, s.chapterThreeComplete ? "CAPÍTULO 03 · REPLAY" : "GRAU 1");
     }
     options += makeMissionButton("Descansar na escola", "Gasta 8 de ouro para restaurar vida e energia amaldiçoada.", "rest", state.player.gold < 8 || (state.player.hp === state.player.maxHp && state.player.ce === state.player.maxCe), "RECUPERAÇÃO");
-    options += makeMissionButton("Comprar uma poção", "Gasta 10 de ouro. Poções recuperam vida durante uma rodada de combate.", "buy-potion", state.player.gold < 10 || state.inventory.potions >= 9, "LOJA");
+    options += makeMissionButton("Comprar uma poção", "Gasta 10 de ouro. Poções recuperam 42 pontos de vida durante o combate.", "buy-potion", state.player.gold < 10 || state.inventory.potions >= 9, "LOJA");
     $("mission-options").innerHTML = options;
   }
   function setDiceDisplay(title, detail, icon, kind) {
@@ -302,7 +325,7 @@
         }
         if (!Number.isFinite(parsed.player.level) || !Number.isFinite(parsed.player.hp) || !parsed.player.attributes) throw new Error("Estado inválido");
         if (!window.confirm("Substituir a jornada atual pelo arquivo de save selecionado?")) return;
-        state = parsed;
+        state = normalizeState(parsed);
         state.combat = null;
         state.view = state.story.chapterOneComplete ? "mission" : "dialogue";
         if (!state.story.chapterOneComplete && !state.story.dialogueNode) state.story.dialogueNode = "briefing";
@@ -360,14 +383,21 @@
     $("clues-status").textContent = state.story.clues;
     $("trust-status").textContent = state.story.trust;
     $("route-one-status").textContent = state.story.chapterOneComplete ? "Concluído" : "Em andamento";
-    $("route-two-status").textContent = state.story.chapterOneComplete ? "Disponível" : "Bloqueado";
+    $("route-two-status").textContent = !state.story.chapterOneComplete ? "Bloqueado" : !state.story.investigationComplete ? "Perícia pendente" : !state.story.chapterTwoComplete ? "Operação liberada" : "Concluído";
     $("route-one-node").classList.toggle("complete", state.story.chapterOneComplete);
-    $("route-two-node").classList.toggle("active-node", state.story.chapterOneComplete);
+    $("route-two-node").classList.toggle("active-node", state.story.chapterOneComplete && !state.story.chapterTwoComplete);
+    var routeLines = document.querySelectorAll(".route-panel .route-line");
+    if (routeLines[1]) routeLines[1].classList.toggle("complete", state.story.chapterTwoComplete);
+    if (routeLines[2]) {
+      routeLines[2].classList.toggle("complete", state.story.chapterThreeComplete);
+      routeLines[2].querySelector("small").textContent = state.story.chapterTwoComplete ? (state.story.chapterThreeComplete ? "Concluído" : (p.level >= 5 ? "Disponível" : "Requer nível 5")) : "Bloqueado · conclua o Capítulo 02";
+    }
+    if (routeLines[3]) routeLines[3].querySelector("small").textContent = state.story.chapterThreeComplete ? "Continuação futura" : "Planejado";
     if (p.level >= 8) p.domainUnlocked = true;
     if (state.view === "combat" && state.combat) {
-      $("domain-btn").disabled = !p.domainUnlocked || p.ce < 42;
-      $("domain-state").textContent = !p.domainUnlocked ? "Desbloqueia no nível 8 · 42 energia" : p.ce < 42 ? "Energia insuficiente · precisa de 42" : "42 energia · dano forte e interrupção";
-      $("potion-action-label").textContent = state.inventory.potions + " disponível(is) · cura 38";
+      $("domain-btn").disabled = !p.domainUnlocked || p.ce < 35;
+      $("domain-state").textContent = !p.domainUnlocked ? "Desbloqueia no nível 8 · 35 energia" : p.ce < 35 ? "Energia insuficiente · precisa de 35" : "35 energia · dano forte e interrupção";
+      $("potion-action-label").textContent = state.inventory.potions + " disponível(is) · cura 42";
     } else {
       $("domain-btn").disabled = true;
     }
@@ -413,20 +443,75 @@
     $("technique-button-cost").textContent = tech.cost + " energia · maestria " + state.player.techniqueRank;
     $("combat-feedback").textContent = enemy.stunned ? "O inimigo está interrompido: aproveite a rodada para uma ação segura." : enemy.exposed ? "O alvo está vulnerável; seu próximo acerto causa dano extra." : enemy.intent === "heavy" ? "O ataque pesado está anunciado. Defender ou esquivar pode evitar muito dano." : enemy.intent === "charge" ? "O inimigo está acumulando energia. Você pode atacar ou aproveitar para se preparar." : "Escolha sua ação; cada decisão encerra seu turno.";
     $("combat-feedback").className = "combat-feedback" + (enemy.stunned || enemy.exposed ? " positive" : enemy.intent === "heavy" ? " negative" : "");
-    $("domain-btn").disabled = state.player.level < 8 || state.player.ce < 42;
-    $("domain-state").textContent = state.player.level < 8 ? "Desbloqueia no nível 8 · 42 energia" : state.player.ce < 42 ? "Energia insuficiente · precisa de 42" : "42 energia · dano forte e interrupção";
-    $("potion-action-label").textContent = state.inventory.potions + " disponível(is) · cura 38";
+    $("domain-btn").disabled = state.player.level < 8 || state.player.ce < 35;
+    $("domain-state").textContent = state.player.level < 8 ? "Desbloqueia no nível 8 · 35 energia" : state.player.ce < 35 ? "Energia insuficiente · precisa de 35" : "35 energia · dano forte e interrupção";
+    $("potion-action-label").textContent = state.inventory.potions + " disponível(is) · cura 42";
     $("dialogue-panel").classList.add("hidden");
     $("combat-panel").classList.remove("hidden");
     $("mission-panel").classList.add("hidden");
     renderDicePanel();
   }
+  function renderTraining() {
+    var game = state.training;
+    if (!game || !DATA.training[game.id]) {
+      state.training = null; state.view = "mission"; render(); return;
+    }
+    var def = DATA.training[game.id];
+    $("chapter-label").textContent = game.id === "investigation" ? "CAPÍTULO 02 · PERÍCIA" : "TREINO DE CAMPO";
+    $("screen-title").textContent = def.title;
+    $("scene-kicker").textContent = def.kicker;
+    $("scene-title").textContent = def.title;
+    $("scene-description").textContent = def.description;
+    $("scene-location").textContent = game.id === "investigation" ? "SALA DE ANÁLISE" : "PÁTIO DA ESCOLA";
+    $("scene-condition").textContent = game.phase === "complete" ? "EXERCÍCIO CONCLUÍDO" : "SIMULAÇÃO ATIVA";
+    $("training-heading").textContent = def.title;
+    $("training-eyebrow").textContent = def.kicker;
+    $("training-chip").textContent = game.phase === "complete" ? "RESULTADO" : "EM ANDAMENTO";
+    var content = "";
+    if (game.phase === "complete") {
+      var result = game.result;
+      content += '<div class="training-result"><div class="training-result-mark">✓</div><div><h3>' + (result.firstClear ? "Treino registrado" : "Prática concluída") + '</h3><p>' + escapeHtml(game.feedback) + '</p></div></div>';
+      content += '<div class="training-metrics"><div><span>ACERTOS</span><strong>' + result.score + ' / ' + result.total + '</strong></div><div><span>EXPERIÊNCIA</span><strong>+' + result.xp + ' XP</strong></div><div><span>OURO</span><strong>+' + result.gold + '</strong></div><div><span>ENERGIA</span><strong>+' + result.ce + '</strong></div></div>';
+      if (result.levels) content += '<p class="training-note">Você subiu ' + result.levels + ' nível(is). Os atributos e a energia foram atualizados.</p>';
+      if (game.id === "investigation" && state.story.investigationComplete) content += '<p class="training-note">O túnel leste foi liberado. Pistas no relatório: ' + state.story.clues + '.</p>';
+      content += '<button class="button primary training-return" data-action="train:return">Voltar ao centro de operações</button>';
+    } else if (game.id === "flow") {
+      var pattern = def.patterns[game.patternIndex];
+      if (game.phase === "preview") {
+        content += '<p class="training-instructions">Memorize os quatro passos na ordem. Depois, a sequência ficará oculta.</p><div class="training-pattern">';
+        pattern.forEach(function (key, index) { var step = def.steps[key]; content += '<div class="training-step"><small>PASSO 0' + (index + 1) + '</small><strong>' + escapeHtml(step.icon) + '</strong><span>' + escapeHtml(step.label) + '</span></div>'; });
+        content += '</div><button class="button primary training-return" data-action="train:start">Memorizei · iniciar teste</button>';
+      } else {
+        content += '<p class="training-instructions">Passo ' + (game.picks.length + 1) + ' de 4. Reproduza a sequência sem vê-la novamente.</p><div class="training-progress">' + game.picks.length + ' / 4 passos · ' + game.score + ' correto(s)</div><div class="training-choice-grid">';
+        Object.keys(def.steps).forEach(function (key) { var step = def.steps[key]; content += '<button class="training-option" data-action="train:' + key + '"><strong>' + escapeHtml(step.icon) + '</strong><span>' + escapeHtml(step.label) + '</span></button>'; });
+        content += '</div><p class="training-feedback">' + escapeHtml(game.feedback) + '</p>';
+      }
+    } else if (game.id === "reflex") {
+      var scenario = def.scenarios[game.round];
+      content += '<div class="training-progress">CENÁRIO ' + (game.round + 1) + ' DE ' + def.scenarios.length + ' · ' + game.score + ' acerto(s)</div>';
+      content += '<div class="training-question"><span class="eyebrow">' + escapeHtml(scenario.title) + '</span><h3>' + escapeHtml(scenario.prompt) + '</h3></div><div class="training-choice-grid">';
+      def.options.forEach(function (option) { content += '<button class="training-option" data-action="train:' + option.id + '"><strong>' + escapeHtml(option.icon) + '</strong><span>' + escapeHtml(option.label) + '</span></button>'; });
+      content += '</div><p class="training-feedback">' + escapeHtml(game.feedback) + '</p>';
+    } else {
+      var question = def.questions[game.round];
+      content += '<div class="training-progress">EVIDÊNCIA ' + (game.round + 1) + ' DE ' + def.questions.length + ' · ' + game.score + ' acerto(s)</div>';
+      content += '<div class="training-question"><span class="eyebrow">' + escapeHtml(question.title) + '</span><h3>' + escapeHtml(question.prompt) + '</h3></div><div class="training-choice-grid">';
+      question.choices.forEach(function (option) { content += '<button class="training-option text-option" data-action="train:' + option.id + '"><span>' + escapeHtml(option.label) + '</span></button>'; });
+      content += '</div><p class="training-feedback">' + escapeHtml(game.feedback) + '</p>';
+    }
+    $("training-content").innerHTML = content;
+    $("dialogue-panel").classList.add("hidden"); $("combat-panel").classList.add("hidden"); $("mission-panel").classList.add("hidden");
+    $("training-panel").classList.remove("hidden");
+  }
+
   function renderView() {
     $("dialogue-panel").classList.toggle("hidden", state.view !== "dialogue");
     $("combat-panel").classList.toggle("hidden", state.view !== "combat");
     $("mission-panel").classList.toggle("hidden", state.view !== "mission");
+    $("training-panel").classList.toggle("hidden", state.view !== "training");
     if (state.view === "dialogue") renderDialogue();
     else if (state.view === "combat") renderCombat();
+    else if (state.view === "training") renderTraining();
     else renderMission();
   }
   function render() {
@@ -455,12 +540,25 @@
     if (action.indexOf("skill:") === 0) { spendSkillPoint(action.slice(6)); return; }
     if (action === "mission:echo") { startCombat("echo"); return; }
     if (action === "mission:devourer") {
-      if (state.player.wins < 1) { toast("Complete uma missão primeiro."); return; }
+      if (!state.story.investigationComplete) { toast("Conclua a Perícia da Barreira primeiro."); return; }
       startCombat("devourer"); return;
     }
     if (action === "mission:sentinel") {
-      if (state.player.level < 5) { toast("A Sentinela exige nível 5."); return; }
+      if (!state.story.chapterTwoComplete || state.player.level < 5) { toast("Conclua a operação anterior e alcance o nível 5."); return; }
       startCombat("sentinel"); return;
+    }
+    if (action.indexOf("training:") === 0) {
+      var trainingResult = CORE.startTraining(state, action.slice(9));
+      if (!trainingResult.ok) { toast(trainingResult.message); return; }
+      render(); persist(false); return;
+    }
+    if (action === "train:return") {
+      state.training = null; state.view = "mission"; render(); persist(false); return;
+    }
+    if (action.indexOf("train:") === 0) {
+      var choiceResult = CORE.applyTrainingChoice(state, action.slice(5));
+      if (!choiceResult.ok) { toast(choiceResult.message); return; }
+      render(); persist(false); return;
     }
     if (action === "rest") { restAtSchool(); return; }
     if (action === "buy-potion") { buyPotion(); return; }
