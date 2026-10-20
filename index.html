@@ -14,7 +14,7 @@
   <header class="topbar">
     <a class="brand" href="#" aria-label="Jujutsu: Fractured Fate">
       <span class="brand-emblem" aria-hidden="true">呪</span>
-      <span class="brand-copy"><span class="eyebrow">Fan project · v0.4 · OVERHAUL</span><strong>JUJUTSU <i>:</i> FRACTURED FATE</strong></span>
+      <span class="brand-copy"><span class="eyebrow">Fan project · v0.5 · MEGA REWORK</span><strong>JUJUTSU <i>:</i> FRACTURED FATE</strong></span>
     </a>
     <div class="topbar-actions">
       <span class="offline-label"><span class="status-dot"></span> SAVE LOCAL</span>
@@ -43,6 +43,8 @@
         <input id="player-name" class="text-input" maxlength="24" autocomplete="off" value="Estudante" placeholder="Nome do feiticeiro">
         <div class="section-heading technique-heading"><div><span class="eyebrow">PASSO 02</span><h2>Escolha uma técnica inata</h2></div><span class="muted small">Não é uma classe fixa</span></div>
         <div class="technique-grid" id="technique-grid"></div>
+        <div class="section-heading path-heading"><div><span class="eyebrow">PASSO 03</span><h2>Defina sua especialização</h2></div><span class="muted small">Passivos mudam sua build</span></div>
+        <div class="path-grid" id="path-grid"></div>
         <div class="start-footer">
           <div><strong>Uma missão original. Muitas consequências.</strong><p id="save-summary">Crie uma ficha para iniciar o Capítulo 01.</p></div>
           <div class="start-buttons"><button id="resume-btn" class="button secondary hidden" data-action="resume">Continuar</button><button class="button primary" data-action="start">Começar missão <span aria-hidden="true">↗</span></button></div>
@@ -74,7 +76,7 @@
         <aside class="profile-panel panel">
           <div class="panel-label">FICHA DO FEITICEIRO <span class="live-dot"></span></div>
           <div class="profile-avatar"><span id="profile-symbol">比</span><i></i></div>
-          <h2 id="profile-name">Estudante</h2><p id="profile-technique" class="muted">Técnica da Proporção</p>
+          <h2 id="profile-name">Estudante</h2><p id="profile-technique" class="muted">Técnica da Proporção</p><p id="profile-path" class="muted profile-path">Especialização · Versátil</p>
           <div class="level-line"><span>NÍVEL <strong id="level-label">1</strong></span><span class="grade-pill" id="grade-pill">GRAU 4</span></div>
           <div class="thin-divider"></div>
           <div class="attribute-head"><span>ATRIBUTOS</span><strong id="skill-points">4 pontos</strong></div>
