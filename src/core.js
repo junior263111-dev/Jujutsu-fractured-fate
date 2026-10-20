@@ -10,12 +10,14 @@
     var oldHp = player.maxHp || 0;
     var oldCe = player.maxCe || 0;
     var a = player.attributes;
-    player.maxHp = 92 + a.vitality * 8 + (player.level - 1) * 10 + player.legacy * 6;
-    player.maxCe = 50 + a.control * 9 + (player.level - 1) * 6 + player.legacy * 5;
-    player.attackPower = 6 + player.level * 2 + a.strength + player.legacy * 2;
-    player.defense = 1 + Math.floor(a.vitality / 2) + Math.floor((player.level - 1) / 3) + Math.floor(player.legacy / 2);
+    var path = DATA.paths && DATA.paths[player.pathId] ? DATA.paths[player.pathId] : DATA.paths.balanced;
+    player.pathId = path.id;
+    player.maxHp = 92 + a.vitality * 8 + (player.level - 1) * 10 + player.legacy * 6 + (path.hp || 0);
+    player.maxCe = 50 + a.control * 9 + (player.level - 1) * 6 + player.legacy * 5 + (path.ce || 0);
+    player.attackPower = 6 + player.level * 2 + a.strength + player.legacy * 2 + (path.attack || 0);
+    player.defense = 1 + Math.floor(a.vitality / 2) + Math.floor((player.level - 1) / 3) + Math.floor(player.legacy / 2) + (path.defense || 0);
     player.accuracy = 1 + Math.floor(a.instinct / 2) + Math.floor((player.level - 1) / 3);
-    player.techniquePower = 5 + player.level + Math.floor(a.control * 1.5) + player.techniqueRank * 3 + player.legacy;
+    player.techniquePower = 5 + player.level + Math.floor(a.control * 1.5) + player.techniqueRank * 3 + player.legacy + (path.techniquePower || 0);
     player.dodgeBonus = Math.floor(a.instinct / 2) + Math.floor(player.level / 5);
     if (preserveGain) {
       player.hp = clamp((player.hp || 0) + Math.max(0, player.maxHp - oldHp), 0, player.maxHp);
@@ -27,14 +29,16 @@
     return player;
   }
 
-  function createState(techniqueId, name) {
+  function createState(techniqueId, name, pathId) {
     var selected = DATA.techniques[techniqueId] ? techniqueId : "ratio";
+    var selectedPath = DATA.paths[pathId] ? pathId : "balanced";
     var state = {
       schema: 2,
       view: "dialogue",
       techniqueId: selected,
       player: {
         name: String(name || "Estudante").trim().slice(0, 24) || "Estudante",
+        pathId: selectedPath,
         level: 1, xp: 0, nextXp: 100,
         hp: 0, maxHp: 0, ce: 0, maxCe: 0,
         attackPower: 0, defense: 0, accuracy: 0, techniquePower: 0, dodgeBonus: 0,
@@ -611,7 +615,7 @@
   function rebirth(state) {
     if (!canRebirth(state)) return { ok: false, message: "Rebirth exige nível 8, cinco exorcismos e nenhum combate ativo." };
     var p = state.player;
-    var newState = createState(state.techniqueId, p.name);
+    var newState = createState(state.techniqueId, p.name, p.pathId);
     newState.player.rebirths = p.rebirths + 1;
     newState.player.legacy = p.legacy + 1;
     newState.player.wins = p.wins;
