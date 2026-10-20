@@ -179,7 +179,7 @@
     var attackRoll = rollDie(20, rng);
     var total = attackRoll + p.accuracy;
     var hit = attackRoll !== 1 && (attackRoll === 20 || total >= enemy.evasion);
-    var result = { action: "physical", attackRoll: attackRoll, total: total, target: enemy.evasion, hit: hit, damage: 0, blackFlash: false, critical: attackRoll === 20 };
+    var result = { action: "physical", attackRoll: attackRoll, total: total, target: enemy.evasion, hit: hit, damage: 0, blackFlash: false, bfRoll: null, bfThreshold: null, critical: attackRoll === 20 };
     if (!hit) {
       state.log.unshift("Ataque físico: d20 " + attackRoll + " + " + p.accuracy + " = " + total + " contra " + enemy.evasion + " — ERRO.");
       return result;
@@ -189,6 +189,8 @@
     if (result.critical) damage = Math.round(damage * 1.5);
     var bfRoll = rollDie(20, rng);
     var bfThreshold = Math.max(16, 20 - Math.floor(p.attributes.control / 2));
+    result.bfRoll = bfRoll;
+    result.bfThreshold = bfThreshold;
     if (bfRoll >= bfThreshold) {
       result.blackFlash = true;
       damage = Math.round(damage * 2.55);
@@ -272,14 +274,12 @@
     if (enemy.stunned) {
       enemy.stunned = false;
       state.log.unshift(enemy.name + " perdeu o turno por interrupção.");
-      chooseIntent(enemy, rng);
       enemy.round += 1;
       return result;
     }
     if (enemy.intent === "charge") {
       enemy.charged = true;
       state.log.unshift(enemy.name + " acumulou energia. O próximo ataque será mais forte.");
-      chooseIntent(enemy, rng);
       enemy.round += 1;
       return result;
     }
@@ -297,7 +297,6 @@
         result.dodged = true;
         p.ce = clamp(p.ce + 5, 0, p.maxCe);
         state.log.unshift("Esquiva bem-sucedida: d20 " + dodgeRoll + " + Instinto = " + dodgeTotal + " contra " + dodgeTarget + ". +5 energia.");
-        chooseIntent(enemy, rng);
         enemy.round += 1;
         return result;
       }
