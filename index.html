@@ -14,7 +14,7 @@
   <header class="topbar">
     <a class="brand" href="#" aria-label="Jujutsu: Fractured Fate">
       <span class="brand-emblem" aria-hidden="true">呪</span>
-      <span class="brand-copy"><span class="eyebrow">Fan project · v0.2</span><strong>JUJUTSU <i>:</i> FRACTURED FATE</strong></span>
+      <span class="brand-copy"><span class="eyebrow">Fan project · v0.3</span><strong>JUJUTSU <i>:</i> FRACTURED FATE</strong></span>
     </a>
     <div class="topbar-actions">
       <span class="offline-label"><span class="status-dot"></span> SAVE LOCAL</span>
@@ -132,7 +132,7 @@
               <button class="combat-button dodge" data-action="dodge"><span class="keycap">4</span><span class="move-icon">躱</span><span><strong>Esquivar</strong><small>Teste de D20 + Instinto</small></span></button>
               <button class="combat-button meditate" data-action="meditate"><span class="keycap">5</span><span class="move-icon">息</span><span><strong>Meditar</strong><small>Recupera energia amaldiçoada</small></span></button>
               <button class="combat-button potion" data-action="potion"><span class="keycap">6</span><span class="move-icon">薬</span><span><strong>Poção</strong><small id="potion-action-label">Recupera vida</small></span></button>
-              <button class="combat-button domain span-two" id="domain-btn" data-action="domain" disabled><span class="keycap">7</span><span class="move-icon">領</span><span><strong>Expansão de Domínio</strong><small id="domain-state">Desbloqueia no nível 8 · 42 energia</small></span></button>
+              <button class="combat-button domain span-two" id="domain-btn" data-action="domain" disabled><span class="keycap">7</span><span class="move-icon">領</span><span><strong>Expansão de Domínio</strong><small id="domain-state">Desbloqueia no nível 8 · 35 energia</small></span></button>
             </div>
             <p class="controls-hint">Cada ação consome um turno. Black Flash só pode surgir no teste extra de um ataque físico comum — nunca ao usar técnica ou domínio.</p>
           </section>
@@ -141,6 +141,11 @@
             <div class="content-heading"><div><span class="eyebrow">CENTRO DE OPERAÇÕES</span><h2 id="mission-heading">Escolha seu próximo passo</h2></div><span class="state-chip" id="mission-chip">MISSÕES</span></div>
             <p id="mission-text" class="story-text"></p>
             <div id="mission-options" class="mission-grid"></div>
+          </section>
+
+          <section id="training-panel" class="panel content-panel hidden">
+            <div class="content-heading"><div><span class="eyebrow" id="training-eyebrow">TREINO DE CAMPO</span><h2 id="training-heading">Controle do Fluxo</h2></div><span class="state-chip" id="training-chip">EM ANDAMENTO</span></div>
+            <div id="training-content" class="training-content"></div>
           </section>
 
           <section class="panel log-panel">
