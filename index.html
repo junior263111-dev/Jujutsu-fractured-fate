@@ -14,7 +14,7 @@
   <header class="topbar">
     <a class="brand" href="#" aria-label="Jujutsu: Fractured Fate">
       <span class="brand-emblem" aria-hidden="true">呪</span>
-      <span class="brand-copy"><span class="eyebrow">Fan project · v0.3</span><strong>JUJUTSU <i>:</i> FRACTURED FATE</strong></span>
+      <span class="brand-copy"><span class="eyebrow">Fan project · v0.4 · OVERHAUL</span><strong>JUJUTSU <i>:</i> FRACTURED FATE</strong></span>
     </a>
     <div class="topbar-actions">
       <span class="offline-label"><span class="status-dot"></span> SAVE LOCAL</span>
@@ -27,7 +27,7 @@
       <div class="intro-copy">
         <div class="eyebrow red-eyebrow">O destino não está escrito em pedra</div>
         <h1>O medo cria<br><span>maldições.</span></h1>
-        <p class="intro-text">Crie sua ficha de feiticeiro, escolha uma técnica inata e entre numa missão em que observar o inimigo vale tanto quanto atacar. Cada decisão deixa uma marca no seu caminho.</p>
+        <p class="intro-text">Construa sua ficha, domine uma técnica inata e investigue uma barreira que reage às escolhas da sua equipe. Treine, aceite contratos e aprenda a virar o combate lendo as intenções do inimigo.</p>
         <div class="intro-meta"><span>◆ Combate tático com dados</span><span>◆ Técnicas inatas</span><span>◆ Rebirth e legado</span></div>
       </div>
       <div class="intro-art" aria-hidden="true">
@@ -132,15 +132,17 @@
               <button class="combat-button dodge" data-action="dodge"><span class="keycap">4</span><span class="move-icon">躱</span><span><strong>Esquivar</strong><small>Teste de D20 + Instinto</small></span></button>
               <button class="combat-button meditate" data-action="meditate"><span class="keycap">5</span><span class="move-icon">息</span><span><strong>Meditar</strong><small>Recupera energia amaldiçoada</small></span></button>
               <button class="combat-button potion" data-action="potion"><span class="keycap">6</span><span class="move-icon">薬</span><span><strong>Poção</strong><small id="potion-action-label">Recupera vida</small></span></button>
+              <button class="combat-button seal" id="seal-btn" data-action="seal"><span class="keycap">8</span><span class="move-icon">封</span><span><strong>Talismã de selamento</strong><small id="seal-action-label">Cancela a intenção inimiga</small></span></button>
               <button class="combat-button domain span-two" id="domain-btn" data-action="domain" disabled><span class="keycap">7</span><span class="move-icon">領</span><span><strong>Expansão de Domínio</strong><small id="domain-state">Desbloqueia no nível 8 · 35 energia</small></span></button>
             </div>
-            <p class="controls-hint">Cada ação consome um turno. Black Flash só pode surgir no teste extra de um ataque físico comum — nunca ao usar técnica ou domínio.</p>
+            <p class="controls-hint">Cada ação consome um turno. Black Flash só surge em ataques físicos. A guarda pode contra-atacar um golpe pesado; o talismã (8) cancela a intenção atual.</p>
           </section>
 
           <section id="mission-panel" class="panel content-panel hidden">
             <div class="content-heading"><div><span class="eyebrow">CENTRO DE OPERAÇÕES</span><h2 id="mission-heading">Escolha seu próximo passo</h2></div><span class="state-chip" id="mission-chip">MISSÕES</span></div>
             <p id="mission-text" class="story-text"></p>
             <div id="mission-options" class="mission-grid"></div>
+            <div class="contract-section"><div class="contract-heading"><div><span class="eyebrow">PROGRESSÃO PARALELA</span><h3>Contratos da escola</h3></div><span class="muted small">Objetivos e recompensas</span></div><div id="contract-options" class="contract-grid"></div></div>
           </section>
 
           <section id="training-panel" class="panel content-panel hidden">
