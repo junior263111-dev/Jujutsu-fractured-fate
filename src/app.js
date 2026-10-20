@@ -25,6 +25,7 @@
     parsed.story.chapterThreeChoice = parsed.story.chapterThreeChoice || null;
     parsed.story.contractsClaimed = parsed.story.contractsClaimed || {};
     parsed.player.pathId = DATA.paths[parsed.player.pathId] ? parsed.player.pathId : "balanced";
+    CORE.refreshDerived(parsed.player, false);
     parsed.training = null;
     if (parsed.view === "training") parsed.view = "mission";
     return parsed;
