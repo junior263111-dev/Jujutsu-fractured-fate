@@ -1,76 +1,117 @@
 # Jujutsu: Fractured Fate
 
-**Protótipo jogável de RPG de navegador inspirado no universo de Jujutsu Kaisen.** Interface em português, combate em tempo real, combos, técnicas, escolhas narrativas e progressão persistente.
+Protótipo de RPG de navegador feito por fã, em português, inspirado no universo de Jujutsu Kaisen. Esta versão troca o combate repetitivo por **turnos táticos com dados**, ficha de personagem, técnicas inatas, diálogos, escolhas persistentes, progressão e rebirth.
 
-> Projeto de fã, não oficial e sem afiliação com os criadores ou detentores de Jujutsu Kaisen. A missão inicial e seus personagens de apoio são originais. O projeto não inclui imagens, músicas, páginas de roteiro ou diálogos copiados da obra.
+> Projeto de fã, não oficial e sem afiliação com os criadores ou detentores de Jujutsu Kaisen. A primeira missão e os personagens de apoio são originais. O projeto não contém roteiro, páginas da wiki, imagens ou trilhas copiados da obra.
 
-## Executar
+## Jogar no computador
 
-Não é necessário instalar bibliotecas nem usar um servidor:
-
-1. Abra o repositório e baixe o ZIP, ou clone-o.
+1. Abra o repositório e clique em **Code → Download ZIP** (ou clone o repositório).
 2. Extraia os arquivos.
-3. Abra **index.html** no navegador.
+3. Abra **index.html** no Edge, Chrome ou outro navegador moderno.
 
-O projeto usa HTML, CSS e JavaScript simples. O progresso é guardado em **localStorage** no navegador atual.
+Não é necessário instalar dependências, configurar Node.js ou iniciar um servidor. O save fica no armazenamento local do navegador. Para jogar em outro dispositivo, use os botões Exportar save / Importar save.
+
+## O que mudou na atualização 0.2
+
+### Ficha RPG no lugar de “estilo de luta”
+- Escolha uma das quatro técnicas inatas disponíveis no protótipo.
+- Invista pontos de habilidade em Força, Vitalidade, Controle e Instinto.
+- Gaste dois pontos para aumentar a Maestria da Técnica, até o nível 5.
+- Aumente atributos derivados e tenha acesso a novas possibilidades de progressão.
+- Os inimigos escalam com nível, exorcismos e rebirth, em vez de permanecerem fáceis para sempre.
+
+### Combate tático por turnos
+- Cada ação do jogador encerra o turno e permite que o inimigo responda.
+- A intenção inimiga é revelada antes da decisão: golpe direto, ataque pesado ou acumular energia.
+- Ataques físicos usam D20 para acertar, mais uma rolagem de dano.
+- Defesa reduz muito o dano daquele turno; esquiva exige um teste de D20 + Instinto; meditar recupera energia amaldiçoada, mas abre mão de causar dano.
+- Poções curam durante o combate, mas o inimigo continua agindo depois do uso.
+- Ataques pesados, críticos, interrupções, sangramento, pontos vulneráveis e proteção das sombras mudam a forma de decidir.
+- **Não há cadeias de combos automáticas.** O jogador escolhe uma ação significativa a cada turno.
+
+### Black Flash baseado em dados
+- Um ataque físico comum bem-sucedido faz um segundo teste de D20 para verificar Black Flash.
+- Controle melhora gradualmente o limite necessário para entrar em ressonância.
+- Black Flash é uma possibilidade rara com grande recompensa: dano multiplicado, recuperação de energia e interrupção do inimigo.
+- Técnicas inatas e Expansão de Domínio **não** podem ativar Black Flash. Não existe botão separado para forçar o fenômeno; ele só acontece no teste do ataque físico.
+
+### Técnicas inatas diferentes
+- **Fala Amaldiçoada:** pode interromper um inimigo se o teste de efeito superar sua resistência.
+- **Manipulação de Sangue:** aplica dano persistente por duas rodadas.
+- **Técnica da Proporção:** marca um ponto vulnerável para ampliar o próximo acerto.
+- **Técnica das Dez Sombras:** causa dano e fornece proteção contra parte do próximo golpe.
+- O custo em energia e a maestria tornam necessário planejar os recursos.
+- Expansão de Domínio é desbloqueada no nível 8 e custa 42 pontos de energia.
+
+### Diálogos e consequências
+- Briefing com a supervisora original Aki Morino.
+- Escolha entre priorizar civis, investigar a barreira ou avançar rapidamente.
+- A primeira missão tem um relatório pós-exorcismo com duas rotas.
+- Confiança, pistas, suprimentos e escolhas ficam salvos na ficha.
+- Uma campanha mais longa e rotas What If serão adicionadas em etapas; esta versão é o primeiro capítulo jogável, não a história completa.
+
+### Progressão, economia e rebirth
+- XP, níveis, graus de feiticeiro, pontos de habilidade, maestria, ouro, poções e talismãs.
+- Descansar na escola restaura vida e energia por 8 moedas.
+- Poções custam 10 moedas na loja e restauram vida em combate.
+- Rebirth exige nível 8 e cinco exorcismos. O nível e os atributos investidos reiniciam, enquanto técnica, maestria, escolhas narrativas, ouro e o legado são preservados. Cada rebirth adiciona bônus permanente.
+
+### Saves
+- Save automático local com schema versionado.
+- Botões para exportar e importar arquivo JSON.
+- Arquivos incompatíveis com a versão atual são rejeitados.
+- Saves da versão 0.1 não são carregados automaticamente pela versão 0.2, pois o formato de personagem e combate foi alterado.
 
 ## Controles durante o combate
 
 | Tecla | Ação |
 |---|---|
-| **J** | Golpe rápido e cadeia de combo |
-| **K** | Golpe pesado, com recarga |
-| **Q** | Técnica inata escolhida na ficha |
-| **F** | Tentar Black Flash após construir um combo |
-| **Espaço** | Preparar a guarda e reduzir o próximo golpe |
-| **E** | Esquiva com janela curta e recarga |
-| **R** | Expansão de Domínio, desbloqueada no nível 8 |
-| Clique | Todas as ações também possuem botões na interface |
+| **1** | Ataque físico |
+| **2** | Técnica inata |
+| **3** | Defender |
+| **4** | Esquivar |
+| **5** | Meditar e recuperar energia |
+| **6** | Usar poção |
+| **7** | Expansão de Domínio, nível 8+ |
 
-## Sistemas implementados na versão 0.1
+Os botões na interface também funcionam com mouse e toque. Os atalhos de teclado não ativam quando o foco está em um campo de texto.
 
-- Três estilos jogáveis com efeitos diferentes: Punho Ecoante, Sombra Vinculada e Fluxo Reverso.
-- Combate em tempo real com cadeia de quatro golpes, finisher, golpe pesado, recarga de habilidades, telegráficos de inimigo, defesa e esquiva.
-- Janela curta para tentar Black Flash após uma sequência de golpes. A janela de timing é uma adaptação de gameplay, não uma simulação literal de um microssegundo.
-- Técnicas com custo de energia amaldiçoada e efeitos que interagem com os próximos golpes.
-- Expansão de Domínio desbloqueada por progressão, com alto custo e janela temporária de vantagem.
-- Vida, energia amaldiçoada, XP, níveis, graus, atributos, itens, vitórias e rebirth.
-- Rebirth: disponível a partir do nível 6 e de três exorcismos; reinicia o nível, preserva escolhas narrativas e concede bônus de legado.
-- Uma missão original com duas escolhas iniciais e dois desfechos alternativos.
-- Dois desafios extras que desbloqueiam por progressão.
-- Salvamento automático local e botão de salvar.
-- Interface adaptável a PC e celular, controles por teclado e botões de toque.
-- Núcleo de progressão separado da interface e testes automatizados básicos.
+## Estrutura do projeto
 
-## Estrutura
+- \`index.html\` — telas de criação, diálogos, missão e combate.
+- \`styles.css\` — interface responsiva.
+- \`src/data.js\` — técnicas, atributos, diálogos, inimigos e graus.
+- \`src/core.js\` — regras de dados, combate, atributos, progressão e rebirth.
+- \`src/app.js\` — interface, interação, saves e fluxo narrativo.
+- \`tests/core.test.cjs\` — testes automatizados do núcleo.
+- \`docs/ROADMAP.md\` — planos de expansão.
+- \`.github/workflows/test.yml\` — checagem de sintaxe e testes no GitHub Actions.
 
-- **index.html** — estrutura e controles da interface.
-- **styles.css** — identidade visual, componentes e layout responsivo.
-- **src/data.js** — estilos, inimigos, narrativa e tabela de graus.
-- **src/core.js** — criação de estado, combate, XP, graus e rebirth.
-- **src/app.js** — interface, controles, timers de combate e salvamento.
-- **tests/core.test.cjs** — testes do núcleo.
-- **docs/ROADMAP.md** — desenho de sistemas e etapas futuras.
+## Rodar os testes
 
-## Testes
+Com Node.js 22 ou compatível, execute na raiz:
 
-Com Node.js instalado, execute na raiz do projeto:
-
+    node --check src/data.js
+    node --check src/core.js
+    node --check src/app.js
     node --test tests/core.test.cjs
 
-Também existe um workflow no GitHub Actions que executa os testes em novos pushes e pull requests.
+O workflow executa esses passos a cada push para \`main\` e em pull requests.
 
-## Importante sobre cânone e adaptação
+## Pesquisa e referências
 
-Os conceitos gerais usados como referência incluem energia amaldiçoada, votos de restrição, Black Flash e Expansão de Domínio. Os números de dano, custos, recargas, janelas e requisitos de nível do protótipo são decisões de balanceamento do jogo — não afirmam reproduzir os valores exatos do cânone. Consulte a wiki para contexto factual e não use a wiki como texto de roteiro.
-
-Referências de mecânica:
+Referências de conceitos gerais usadas como ponto de partida:
 - [Cursed Energy](https://jujutsu-kaisen.fandom.com/wiki/Cursed_Energy)
 - [Black Flash](https://jujutsu-kaisen.fandom.com/wiki/Black_Flash)
 - [Domain Expansion](https://jujutsu-kaisen.fandom.com/wiki/Domain_Expansion)
 - [Binding Vow](https://jujutsu-kaisen.fandom.com/wiki/Binding_Vow)
 - [Heavenly Restriction](https://jujutsu-kaisen.fandom.com/wiki/Heavenly_Restriction)
 
-## Próximos passos
+Os números de dano, custos, escalas, limites de dados e requisitos de nível são decisões de balanceamento do jogo, não valores oficiais do cânone.
 
-Veja [docs/ROADMAP.md](docs/ROADMAP.md). O objetivo é evoluir a experiência em fatias jogáveis e testáveis, em vez de tentar implementar toda a campanha numa única alteração.
+## Limitações e futuro
+
+Esta versão é single-player e offline; não usa um serviço de IA para escrever a história. O randomizer de escolhas e a geração de enredo por IA ficam para uma fase futura, depois que as regras de campanha, salvamento, balanceamento e testes estiverem mais sólidas. Se uma IA for conectada no futuro, as credenciais deverão ficar num backend seguro, nunca embutidas no JavaScript do navegador.
+
+Veja [docs/ROADMAP.md](docs/ROADMAP.md) para o plano de trabalho.
