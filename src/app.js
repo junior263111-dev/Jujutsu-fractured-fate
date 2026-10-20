@@ -215,8 +215,11 @@
         tech.kanji, r.hit ? "positive" : "negative");
     } else if (action === "dodge") {
       var enemyResult = r.enemy || {};
+      var dodgeDetail = enemyResult.dodgeRoll
+        ? "Teste D20 " + enemyResult.dodgeRoll + " + Instinto = " + enemyResult.dodgeTotal + " contra " + enemyResult.dodgeTarget + ". "
+        : "";
       setDiceDisplay(enemyResult.dodged ? "Esquiva bem-sucedida" : "Tentativa de esquiva",
-        enemyResult.dodged ? "Você evitou o ataque e recuperou energia amaldiçoada." : "O resultado do inimigo foi resolvido. Leia a próxima intenção.",
+        dodgeDetail + (enemyResult.dodged ? "Você evitou o ataque e recuperou energia amaldiçoada." : "O resultado do inimigo foi resolvido. Leia a próxima intenção."),
         "躱", enemyResult.dodged ? "positive" : "negative");
     } else if (action === "guard") {
       setDiceDisplay("Guarda preparada", "Você reduziu o dano recebido nesta rodada. A intenção seguinte será sorteada depois do ataque inimigo.", "盾", "positive");
