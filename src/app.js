@@ -264,7 +264,8 @@
       return;
     }
     var incoming = enemy.attack + randomInt(5);
-    if (guarding) incoming = Math.round(incoming * 0.36);
+    var blocked = guarding;
+    if (blocked) incoming = Math.round(incoming * 0.36);
     if (enemy.openingGuard) {
       incoming = Math.round(incoming * 0.45);
       enemy.openingGuard = false;
@@ -276,7 +277,7 @@
       finishDefeat();
       return;
     }
-    setFeedback(guarding ? "Você reduziu o impacto do ataque." : enemy.name + " atacou. Observe o próximo telegráfico.", guarding ? "positive" : "negative");
+    setFeedback(blocked ? "Você reduziu o impacto do ataque." : enemy.name + " atacou. Observe o próximo telegráfico.", blocked ? "positive" : "negative");
     render();
     persist(true);
     scheduleEnemyAttack(1450);
@@ -338,9 +339,11 @@
     techniqueReadyAt = now + 1450;
     state.player.ce -= style.ceCost;
     if (style.effect === "expose") {
-      state.combat.exposed = true;
       damageEnemy(state.player.attack * style.damageScale + 4 + randomInt(5), style.techniqueName);
-      if (state && state.combat) setFeedback("Impacto conectado. O inimigo ficou vulnerável ao próximo golpe.", "positive");
+      if (state && state.combat) {
+        state.combat.exposed = true;
+        setFeedback("Impacto conectado. O inimigo ficou vulnerável ao próximo golpe.", "positive");
+      }
     } else if (style.effect === "stun") {
       state.combat.stunned = true;
       damageEnemy(state.player.attack * style.damageScale + 3 + randomInt(5), style.techniqueName);
@@ -478,7 +481,6 @@
       $("black-flash-state").textContent = Date.now() <= blackFlashReadyUntil && combo >= 3 ? "JANELA ATIVA · PRESSIONE F" : "Combo 3+ e timing preciso";
       $("domain-btn").disabled = state.player.level < 8 || state.player.ce < 35;
       $("domain-state").textContent = state.player.level < 8 ? "Desbloqueia no nível 8" : domainUntil > Date.now() ? "DOMÍNIO ATIVO · golpes reforçados" : "35 energia · interrupção e pressão";
-      $("heavy-cooldown").textContent = "";
       $("dodge-cooldown").textContent = Date.now() < dodgeReadyAt ? "Esquiva recarregando" : "Janela curta · recarga";
       $("story-heading").textContent = "Missão em andamento";
       var styleDesc = DATA.styles[state.styleId].techniqueDescription;
