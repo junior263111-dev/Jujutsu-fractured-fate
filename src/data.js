@@ -1,7 +1,7 @@
 (function (root) {
   "use strict";
   root.JFF_DATA = {
-    version: "0.4.0",
+    version: "0.5.0",
     title: "Jujutsu: Fractured Fate",
     paths: {
       balanced: { id: "balanced", name: "Versátil", symbol: "均", category: "Equilíbrio", description: "Sem fraquezas marcantes. Ideal para experimentar as quatro ações.", bonus: "Sem modificadores; flexibilidade total.", hp: 0, ce: 0, attack: 0, defense: 0, techniquePower: 0 },
