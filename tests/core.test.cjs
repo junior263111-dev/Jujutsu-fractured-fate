@@ -243,6 +243,59 @@ test("the rebalance reduces first-enemy HP and softens level scaling", () => {
   assert.ok(devourer.maxHp > echo.maxHp);
 });
 
+test("talisman cancels the current enemy intent and consumes exactly one seal", () => {
+  const state = Core.createState("ratio");
+  Core.startCombat(state, "echo", lowRoll);
+  state.combat.intent = "heavy";
+  const sealsBefore = state.inventory.seals;
+  const result = Core.takeTurn(state, "seal", sequence([0.1, 0.1, 0.1]));
+  assert.equal(result.ok, true);
+  assert.equal(result.result.action, "seal");
+  assert.equal(state.inventory.seals, sealsBefore - 1);
+  assert.equal(state.player.hp, state.player.maxHp);
+  assert.ok(state.log.some(line => line.includes("intenção") && line.includes("anulada")));
+});
+
+test("guarding an announced heavy strike counters damage while reducing incoming damage", () => {
+  const state = Core.createState("ratio");
+  Core.startCombat(state, "echo", highRoll);
+  state.combat.intent = "heavy";
+  const enemyHp = state.combat.hp;
+  const hpBefore = state.player.hp;
+  const result = Core.takeTurn(state, "guard", sequence([0.9, 0.99, 0.5]));
+  assert.equal(result.ok, true);
+  assert.ok(result.result.enemy.counterDamage > 0);
+  assert.ok(state.combat.hp < enemyHp);
+  assert.ok(hpBefore - state.player.hp < state.combat.attack + 8);
+});
+
+test("the Sentinel enters phase two once below half health", () => {
+  const state = Core.createState("ratio");
+  state.story.chapterTwoComplete = true; state.player.level = 5;
+  Core.refreshDerived(state.player, false); state.player.hp = state.player.maxHp;
+  Core.startCombat(state, "sentinel", lowRoll);
+  const originalAttack = state.combat.attack;
+  state.combat.hp = Math.floor(state.combat.maxHp * 0.51);
+  assert.equal(Core.triggerPhaseChange(state), false);
+  state.combat.hp = Math.floor(state.combat.maxHp * 0.49);
+  assert.equal(Core.triggerPhaseChange(state), true);
+  assert.equal(state.combat.phase, 2);
+  assert.equal(state.combat.attack, originalAttack + 3);
+  assert.equal(Core.triggerPhaseChange(state), false);
+});
+
+test("contracts can be claimed once and pay their published rewards", () => {
+  const state = Core.createState("ratio");
+  state.story.trainingCompleted = { flow: true, reflex: true };
+  assert.equal(Core.contractReady(state, "training_pair"), true);
+  const claimed = Core.claimContract(state, "training_pair");
+  assert.equal(claimed.ok, true);
+  assert.equal(claimed.reward.xp, 110);
+  assert.equal(state.player.gold, 32);
+  assert.equal(Core.claimContract(state, "training_pair").ok, false);
+});
+
+
 test("technique catalogue has a cost, effect, and descriptive identity for each choice", () => {
   Object.values(DATA.techniques).forEach(technique => {
     assert.ok(technique.name);
