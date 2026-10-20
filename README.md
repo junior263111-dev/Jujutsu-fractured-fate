@@ -1,4 +1,4 @@
-# Jujutsu: Fractured Fate — v0.4 Overhaul
+# Jujutsu: Fractured Fate — v0.5 Mega Rework
 
 **RPG de navegador feito por fã, em português, inspirado no universo de Jujutsu Kaisen.** A versão 0.3 reúne combate tático por dados, minigames jogáveis, três etapas de campanha, escolhas persistentes e progressão com recompensas de primeira conclusão.
 
@@ -13,6 +13,13 @@
 Não é necessário instalar dependências, configurar Node.js ou iniciar um servidor. O save fica no armazenamento local do navegador. Para jogar em outro dispositivo, use os botões Exportar save / Importar save.
 
 ## O que mudou na atualização 0.4 — Overhaul
+
+### Especializações de personagem
+- **Versátil:** sem bônus extremos, para experimentar estilos diferentes.
+- **Punho de Exorcista:** +2 de ataque físico.
+- **Condutor de Energia:** +15 de energia máxima e +2 de potência técnica.
+- **Guardião do Véu:** +18 de vida máxima e +1 de defesa.
+- A especialização é exibida na ficha, afeta atributos derivados e é preservada no rebirth; saves antigos recebem a opção Versátil se não tiverem essa informação.
 
 ### Novas decisões táticas
 - Talismã de selamento (tecla 8): gasta um talismã para cancelar a intenção inimiga atual, inclusive a preparação de um ataque pesado.
