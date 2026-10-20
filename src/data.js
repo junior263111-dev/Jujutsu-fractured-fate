@@ -1,7 +1,7 @@
 (function (root) {
   "use strict";
   root.JFF_DATA = {
-    version: "0.3.0",
+    version: "0.4.0",
     title: "Jujutsu: Fractured Fate",
     techniques: {
       speech: {
@@ -162,6 +162,12 @@
         ]
       }
     },
+    contracts: [
+      { id: "training_pair", title: "Disciplina de Campo", description: "Conclua Controle do Fluxo e Reflexos de Campo.", reward: { xp: 110, gold: 12, seals: 0 }, condition: "training_pair" },
+      { id: "first_exorcism", title: "Primeiro Exorcismo", description: "Conclua sua primeira missão e reporte o resultado.", reward: { xp: 140, gold: 20, seals: 1 }, condition: "first_exorcism" },
+      { id: "barrier_report", title: "Relatório de Investigação", description: "Conclua a Perícia da Barreira e reúna três pistas.", reward: { xp: 110, gold: 15, seals: 1 }, condition: "barrier_report" },
+      { id: "three_targets", title: "Três Alvos", description: "Conclua pela primeira vez as operações Eco, Devorador e Sentinela.", reward: { xp: 240, gold: 40, seals: 2 }, condition: "three_targets" }
+    ],
     training: {
       flow: {
         title: "Controle do Fluxo", kicker: "TREINO DE ENERGIA · MEMÓRIA",
@@ -250,6 +256,8 @@
         xp: 340,
         ce: 32,
         gold: 55,
+        phaseAt: 0.5,
+        phaseAttackBonus: 3,
         intentWeights: [30, 50, 20],
         description: "Um guardião preso a uma barreira antiga. Aguenta pressão, prepara ataques fortes e pune o uso descuidado de energia."
       }
